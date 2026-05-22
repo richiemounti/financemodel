@@ -6,6 +6,7 @@
 <title>ConnectGo — Financial Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
   --forest: #11302A; --forest-light: rgba(17,48,42,0.12);
@@ -177,6 +178,8 @@ td:first-child { text-align:left; }
   <div class="logo">CONNECT<span>GO</span><small>FINANCIAL INTELLIGENCE</small></div>
   <div class="header-right">
     <div class="last-upd">Last sync: <span id="lastSync">Never</span></div>
+    <div id="authStatus" style="font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.05em;text-transform:uppercase;"></div>
+    <button class="btn outline" id="authBtn" onclick="handleAuthClick()" title="Sign in with Google to enable writing slider values back to your sheet">⚡ Enable Write</button>
     <button class="btn outline" onclick="document.getElementById('configModal').classList.add('show');document.getElementById('apiKey').value=CFG.apiKey;document.getElementById('sheetId').value=CFG.sheetId">⚙ Configure</button>
     <button class="btn" onclick="syncData()" id="syncBtn">↻ Sync</button>
   </div>
@@ -436,7 +439,69 @@ function saveConfig() {
   localStorage.setItem('cg_key', CFG.apiKey);
   localStorage.setItem('cg_sid', CFG.sheetId);
   document.getElementById('configModal').classList.remove('show');
-  if (CFG.apiKey) syncData();
+  if (CFG.apiKey || accessToken) syncData();
+}
+
+// ── GOOGLE OAUTH ──
+const OAUTH_CLIENT_ID = '621921788051-djpb27vhlh1il09n0jmto48cp0gahsl7.apps.googleusercontent.com';
+const OAUTH_SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
+let accessToken = null;
+let tokenClient = null;
+let tokenExpiry = 0;
+
+function initOAuth() {
+  if (typeof google === 'undefined' || !google.accounts) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: OAUTH_CLIENT_ID,
+    scope: OAUTH_SCOPE,
+    callback: (resp) => {
+      if (resp.error) { console.error('OAuth error:', resp); return; }
+      accessToken = resp.access_token;
+      tokenExpiry = Date.now() + (resp.expires_in - 60) * 1000;
+      updateAuthUI(true);
+      syncData();
+    },
+  });
+}
+
+function handleAuthClick() {
+  if (accessToken && Date.now() < tokenExpiry) {
+    // Already signed in — revoke
+    google.accounts.oauth2.revoke(accessToken, () => {
+      accessToken = null;
+      tokenExpiry = 0;
+      updateAuthUI(false);
+    });
+  } else {
+    // Not signed in — request token (no consent screen if already granted)
+    if (!tokenClient) initOAuth();
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+function ensureFreshToken() {
+  // If token is about to expire, silently refresh
+  if (tokenClient && accessToken && Date.now() > tokenExpiry) {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
+}
+
+function updateAuthUI(signedIn) {
+  const btn = document.getElementById('authBtn');
+  const status = document.getElementById('authStatus');
+  if (signedIn) {
+    btn.textContent = '✓ Write Enabled';
+    btn.style.background = 'rgba(45,138,78,0.3)';
+    btn.style.borderColor = 'rgba(45,138,78,0.6)';
+    btn.style.color = '#4ade80';
+    status.textContent = 'Write access active';
+  } else {
+    btn.textContent = '⚡ Enable Write';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    status.textContent = '';
+  }
 }
 
 // ── COLORS ──
@@ -692,8 +757,8 @@ function runScenario() {
   const beYear = ebitdas.findIndex(e=>e>0);
   document.getElementById('imp-be').textContent = beYear>=0 ? (2026+beYear).toString() : '2030+';
 
-  // Write back to Google Sheets if configured
-  if (CFG.apiKey) {
+  // Write back to Google Sheets if OAuth is active
+  if (accessToken) {
     writeCell('Controls','E45', rs/100);
     writeCell('Controls','E44', rg/100);
     writeCell('Controls','E46', cg/100);
@@ -778,7 +843,8 @@ function buildRevCost() {
 
 // ── GOOGLE SHEETS SYNC ──
 async function syncData() {
-  if (!CFG.apiKey) { document.getElementById('configModal').classList.add('show'); return; }
+  if (!CFG.apiKey && !accessToken) { document.getElementById('configModal').classList.add('show'); return; }
+  ensureFreshToken();
   const btn = document.getElementById('syncBtn');
   btn.textContent = '↻ Syncing...';
   document.getElementById('loadingBg').classList.add('show');
@@ -805,15 +871,26 @@ async function syncData() {
 }
 
 async function gsFetch(sheet, range) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${range}?key=${CFG.apiKey}`;
-  const r = await fetch(url);
+  let url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${range}`;
+  const opts = {};
+  if (accessToken) {
+    opts.headers = { 'Authorization': `Bearer ${accessToken}` };
+  } else {
+    url += `?key=${CFG.apiKey}`;
+  }
+  const r = await fetch(url, opts);
   if (!r.ok) throw new Error(r.status);
   return r.json();
 }
 
 async function writeCell(sheet, cell, value) {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${cell}?valueInputOption=RAW&key=${CFG.apiKey}`;
-  await fetch(url, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({values:[[value]]}) });
+  if (!accessToken) return; // write requires OAuth
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${cell}?valueInputOption=RAW`;
+  await fetch(url, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+    body: JSON.stringify({ values: [[value]] })
+  });
 }
 
 // ── INIT ──
@@ -821,6 +898,16 @@ window.addEventListener('load', () => {
   buildChartsForTab('overview');
   runScenario();
   if (CFG.apiKey) syncData();
+});
+
+// GIS loads async — initialise token client once it's ready
+window.addEventListener('load', () => {
+  const poll = setInterval(() => {
+    if (typeof google !== 'undefined' && google.accounts) {
+      initOAuth();
+      clearInterval(poll);
+    }
+  }, 200);
 });
 </script>
 </body>
