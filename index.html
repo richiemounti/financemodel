@@ -17,7 +17,8 @@
   --border: rgba(17,48,42,0.1); --success: #2d8a4e; --card: #FFFFFF;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Space Grotesk',sans-serif; background:var(--off-white); color:var(--text-dark); }
+html { scroll-behavior:smooth; }
+body { font-family:'Space Grotesk',sans-serif; background:var(--off-white); color:var(--text-dark); overflow-x:hidden; }
 
 .header { background:var(--forest); padding:0 40px; display:flex; align-items:center; justify-content:space-between; height:70px; position:sticky; top:0; z-index:100; border-bottom:3px solid var(--amber); }
 .logo { font-size:20px; font-weight:700; color:#fff; letter-spacing:.08em; text-transform:uppercase; }
@@ -30,39 +31,42 @@ body { font-family:'Space Grotesk',sans-serif; background:var(--off-white); colo
 .btn.outline { background:transparent; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.7); }
 .btn.outline:hover { background:rgba(255,255,255,.1); }
 
-.nav { background:var(--forest); padding:0 40px; display:flex; gap:2px; border-bottom:1px solid rgba(255,255,255,.08); }
+.nav { background:var(--forest); padding:0 40px; display:flex; gap:2px; border-bottom:1px solid rgba(255,255,255,.08); position:sticky; top:70px; z-index:99; }
 .nav-tab { padding:11px 18px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.45); cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; white-space:nowrap; }
 .nav-tab:hover { color:rgba(255,255,255,.75); }
 .nav-tab.active { color:var(--yellow); border-bottom-color:var(--yellow); }
 
-.main { max-width:1440px; margin:0 auto; padding:28px 40px; }
+.main { max-width:1440px; margin:0 auto; padding:20px 36px; }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
 
-.sec-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--text-light); margin-bottom:18px; padding-bottom:8px; border-bottom:2px solid var(--border); }
+/* charts scale to viewport */
+canvas { height:30vh !important; min-height:90px; }
 
-.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin-bottom:24px; }
-.kpi { background:var(--card); border-radius:8px; padding:20px; border:1px solid var(--border); position:relative; overflow:hidden; }
+.sec-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--text-light); margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid var(--border); }
+
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:16px; }
+.kpi { background:var(--card); border-radius:6px; padding:14px 16px; border:1px solid var(--border); position:relative; overflow:hidden; }
 .kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--amber); }
 .kpi.pos::before { background:var(--success); }
 .kpi.neg::before { background:var(--coral); }
 .kpi.warn::before { background:var(--yellow); }
 .kpi.dk::before { background:var(--forest); }
-.kpi-lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-light); margin-bottom:8px; }
-.kpi-val { font-size:26px; font-weight:700; line-height:1; margin-bottom:5px; }
+.kpi-lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-light); margin-bottom:6px; }
+.kpi-val { font-size:22px; font-weight:700; line-height:1; margin-bottom:3px; }
 .kpi-sub { font-size:11px; color:var(--text-light); }
-.delta { display:inline-flex; align-items:center; gap:3px; font-size:10px; font-weight:700; padding:3px 8px; border-radius:3px; margin-top:8px; }
+.delta { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:3px; margin-top:6px; }
 .delta.up { background:rgba(45,138,78,.1); color:var(--success); }
 .delta.down { background:rgba(238,92,95,.1); color:var(--coral); }
 .delta.warn { background:rgba(240,199,29,.1); color:#a08000; }
 
-.grid-2 { display:grid; grid-template-columns:2fr 1fr; gap:18px; margin-bottom:20px; }
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; margin-bottom:20px; }
-.grid-equal { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:20px; }
+.grid-2 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px; }
+.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
+.grid-equal { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
 
-.card { background:var(--card); border-radius:8px; padding:22px; border:1px solid var(--border); }
+.card { background:var(--card); border-radius:6px; padding:14px 18px; border:1px solid var(--border); }
 .card.full { grid-column:1/-1; }
-.card-hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:18px; }
+.card-hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
 .card-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
 .card-sub { font-size:11px; color:var(--text-light); margin-top:3px; }
 .badge { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:3px; }
@@ -73,21 +77,21 @@ body { font-family:'Space Grotesk',sans-serif; background:var(--off-white); colo
 .badge.warn { background:rgba(240,199,29,.12); color:#a08000; }
 
 /* SCENARIO PANEL */
-.scenario-panel { background:var(--forest); border-radius:8px; padding:26px; color:#fff; margin-bottom:20px; }
-.sc-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--yellow); margin-bottom:20px; }
-.sc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:22px; }
+.scenario-panel { background:var(--forest); border-radius:6px; padding:18px 22px; color:#fff; margin-bottom:14px; }
+.sc-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--yellow); margin-bottom:14px; }
+.sc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px; }
 .sc-ctrl { }
-.sc-lbl { font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; }
-.sc-val { color:var(--yellow); font-size:14px; font-weight:700; }
-input[type=range] { width:100%; height:4px; -webkit-appearance:none; background:rgba(255,255,255,.2); border-radius:2px; outline:none; margin-bottom:6px; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:16px; height:16px; border-radius:50%; background:var(--yellow); cursor:pointer; border:2px solid var(--forest); box-shadow:0 0 0 2px var(--yellow); }
+.sc-lbl { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
+.sc-val { color:var(--yellow); font-size:12px; font-weight:700; }
+input[type=range] { width:100%; height:4px; -webkit-appearance:none; background:rgba(255,255,255,.2); border-radius:2px; outline:none; margin-bottom:4px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--yellow); cursor:pointer; border:2px solid var(--forest); box-shadow:0 0 0 2px var(--yellow); }
 .sc-ticks { display:flex; justify-content:space-between; font-size:9px; color:rgba(255,255,255,.3); }
-.sc-divider { border-top:1px solid rgba(255,255,255,.1); margin:20px 0; }
+.sc-divider { border-top:1px solid rgba(255,255,255,.1); margin:10px 0; }
 
-.impact-row { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:20px; padding-top:20px; border-top:1px solid rgba(255,255,255,.1); }
+.impact-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); }
 .imp-item { text-align:center; }
-.imp-lbl { font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:6px; }
-.imp-val { font-size:22px; font-weight:700; }
+.imp-lbl { font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:3px; }
+.imp-val { font-size:16px; font-weight:700; }
 .imp-val.good { color:#4ade80; }
 .imp-val.bad { color:var(--coral); }
 
@@ -136,7 +140,7 @@ td:first-child { text-align:left; }
 .btn-outline2 { background:transparent; color:var(--text-mid); border:1px solid var(--border); padding:9px 22px; border-radius:6px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; cursor:pointer; }
 
 /* NOTICE */
-.notice { background:rgba(240,199,29,.1); border:1px solid rgba(240,199,29,.4); border-radius:6px; padding:10px 14px; font-size:11px; color:var(--text-dark); margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+.notice { background:rgba(240,199,29,.1); border:1px solid rgba(240,199,29,.4); border-radius:6px; padding:6px 12px; font-size:10px; color:var(--text-dark); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
 
 /* LOADING */
 .loading-bg { display:none; position:fixed; inset:0; background:rgba(17,48,42,.85); z-index:200; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
@@ -203,17 +207,17 @@ td:first-child { text-align:left; }
   <div class="grid-2">
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue vs Budget — 2026 YTD</div><div class="card-sub">Monthly actual vs forecast by vertical</div></div><span class="badge dk">Jan–Apr Actuals</span></div>
-      <canvas id="c-revBudget" height="260"></canvas>
+      <canvas id="c-revBudget"></canvas>
     </div>
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue Mix YTD</div><div class="card-sub">Jan–Apr 2026</div></div></div>
-      <canvas id="c-revMix" height="260"></canvas>
+      <canvas id="c-revMix"></canvas>
     </div>
   </div>
   <div class="grid-2">
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue vs Operating Expenses</div><div class="card-sub">Monthly 2026</div></div></div>
-      <canvas id="c-revExp" height="240"></canvas>
+      <canvas id="c-revExp"></canvas>
     </div>
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Profitability Roadmap</div></div></div>
@@ -246,11 +250,11 @@ td:first-child { text-align:left; }
   <div class="grid-equal">
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue by Vertical — Actual vs Budget</div><div class="card-sub">Jan–Apr 2026 YTD</div></div></div>
-      <canvas id="c-vertBudget" height="260"></canvas>
+      <canvas id="c-vertBudget"></canvas>
     </div>
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Expense Variance vs Budget</div><div class="card-sub">% over/under — green = under budget</div></div></div>
-      <canvas id="c-expVar" height="260"></canvas>
+      <canvas id="c-expVar"></canvas>
     </div>
   </div>
   <div class="vtable">
@@ -279,7 +283,7 @@ td:first-child { text-align:left; }
   </div>
   <div class="card" style="margin-bottom:20px">
     <div class="card-hdr"><div><div class="card-title">12-Month Cash Projection</div><div class="card-sub">May 2026 – Apr 2027 · Including Praetura drawdown and monthly repayments</div></div><span class="badge dk">Forward Projection</span></div>
-    <canvas id="c-cashflow" height="280"></canvas>
+    <canvas id="c-cashflow"></canvas>
   </div>
   <div class="grid-equal">
     <div class="card">
@@ -365,11 +369,11 @@ td:first-child { text-align:left; }
   <div class="grid-equal">
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue Trajectory — 2026 to 2030</div><div class="card-sub">Reacts to slider changes above</div></div></div>
-      <canvas id="c-scRev" height="280"></canvas>
+      <canvas id="c-scRev"></canvas>
     </div>
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">EBITDA Path to Profitability</div><div class="card-sub">Revenue minus all costs incl. payroll & debt repayments</div></div></div>
-      <canvas id="c-scEbitda" height="280"></canvas>
+      <canvas id="c-scEbitda"></canvas>
     </div>
   </div>
 </div>
@@ -386,11 +390,11 @@ td:first-child { text-align:left; }
   <div class="grid-equal">
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">10-Year Revenue Trajectory</div><div class="card-sub">Base case forecast 2026–2035</div></div><span class="badge amber">Forecast</span></div>
-      <canvas id="c-10yr" height="270"></canvas>
+      <canvas id="c-10yr"></canvas>
     </div>
     <div class="card">
       <div class="card-hdr"><div><div class="card-title">Revenue vs Total Costs</div><div class="card-sub">Path to sustained profitability</div></div></div>
-      <canvas id="c-revCost" height="270"></canvas>
+      <canvas id="c-revCost"></canvas>
     </div>
   </div>
   <div class="grid-3">
