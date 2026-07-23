@@ -3,451 +3,571 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ConnectGo — Financial Dashboard</title>
+<title>ConnectGo — Financial Intelligence</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-:root {
-  --forest: #11302A; --forest-light: rgba(17,48,42,0.12);
-  --amber: #CD8028; --amber-light: rgba(205,128,40,0.12);
-  --yellow: #F0C71D; --burgundy: #511433;
-  --coral: #EE5C5F; --coral-light: rgba(238,92,95,0.12);
-  --olive: #858755; --white: #FFFFFF; --off-white: #F5F2EC;
-  --text-dark: #1a1a1a; --text-mid: #4a4a4a; --text-light: #8a8a8a;
-  --border: rgba(17,48,42,0.1); --success: #2d8a4e; --card: #FFFFFF;
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-html { scroll-behavior:smooth; }
-body { font-family:'Space Grotesk',sans-serif; background:var(--off-white); color:var(--text-dark); overflow-x:hidden; }
+  :root {
+    --forest: #11302A;
+    --forest-mid: #1a4a40;
+    --forest-light: #234d43;
+    --amber: #CD8028;
+    --amber-light: #e09040;
+    --yellow: #F0C71D;
+    --coral: #EE5C5F;
+    --olive: #858755;
+    --burgundy: #511433;
+    --white: #FFFFFF;
+    --off-white: #F7F6F2;
+    --grey-50: #F9F9F7;
+    --grey-100: #EFEFEB;
+    --grey-200: #DDDDD8;
+    --grey-400: #9A9A94;
+    --grey-600: #5C5C58;
+    --grey-800: #2C2C2A;
+    --green-soft: #E8F5E9;
+    --green-text: #1B5E20;
+    --red-soft: #FDECEA;
+    --red-text: #B71C1C;
+    --amber-soft: #FFF8E1;
+    --amber-text: #E65100;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Space Grotesk', sans-serif; background: var(--off-white); color: var(--grey-800); min-height: 100vh; }
 
-.header { background:var(--forest); padding:0 40px; display:flex; align-items:center; justify-content:space-between; height:70px; position:sticky; top:0; z-index:100; border-bottom:3px solid var(--amber); }
-.logo { font-size:20px; font-weight:700; color:#fff; letter-spacing:.08em; text-transform:uppercase; }
-.logo span { color:var(--yellow); }
-.logo small { font-weight:300; font-size:12px; color:rgba(255,255,255,.35); letter-spacing:.15em; margin-left:12px; }
-.header-right { display:flex; align-items:center; gap:12px; }
-.last-upd { font-size:11px; color:rgba(255,255,255,.4); letter-spacing:.05em; text-transform:uppercase; }
-.btn { background:var(--amber); color:#fff; border:none; padding:8px 18px; border-radius:4px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:background .2s; }
-.btn:hover { background:#e09030; }
-.btn.outline { background:transparent; border:1px solid rgba(255,255,255,.3); color:rgba(255,255,255,.7); }
-.btn.outline:hover { background:rgba(255,255,255,.1); }
+  .header { background: var(--forest); padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: sticky; top: 0; z-index: 100; }
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo { font-size: 15px; font-weight: 700; color: var(--white); letter-spacing: 0.04em; text-transform: uppercase; }
+  .logo span { color: var(--amber); }
+  .sync-status { font-size: 11px; color: var(--grey-400); display: flex; align-items: center; gap: 6px; }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--grey-400); }
+  .sync-dot.live { background: #4CAF50; animation: pulse-dot 2s infinite; }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .btn-sm { padding: 6px 12px; border-radius: 4px; font-size: 12px; font-weight: 500; cursor: pointer; border: none; font-family: 'Space Grotesk', sans-serif; transition: all 0.15s; }
+  .btn-ghost { background: transparent; color: var(--grey-400); border: 1px solid var(--forest-light); }
+  .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+  .btn-amber { background: var(--amber); color: var(--white); }
 
-.nav { background:var(--forest); padding:0 40px; display:flex; gap:2px; border-bottom:1px solid rgba(255,255,255,.08); position:sticky; top:70px; z-index:99; }
-.nav-tab { padding:11px 18px; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.45); cursor:pointer; border-bottom:3px solid transparent; transition:all .2s; white-space:nowrap; }
-.nav-tab:hover { color:rgba(255,255,255,.75); }
-.nav-tab.active { color:var(--yellow); border-bottom-color:var(--yellow); }
+  .tabs { background: var(--forest-mid); padding: 0 32px; display: flex; border-bottom: 2px solid var(--forest-light); overflow-x: auto; }
+  .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; color: var(--grey-400); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; white-space: nowrap; }
+  .tab:hover { color: var(--white); }
+  .tab.active { color: var(--amber); border-bottom-color: var(--amber); }
 
-.main { max-width:1440px; margin:0 auto; padding:20px 36px; }
-.tab-content { display:none; }
-.tab-content.active { display:block; }
+  .main { padding: 28px 32px; max-width: 1400px; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
-/* charts scale to viewport */
-canvas { height:30vh !important; min-height:90px; }
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--grey-400); margin-bottom: 12px; margin-top: 28px; }
+  .section-label:first-child { margin-top: 0; }
 
-.sec-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--text-light); margin-bottom:14px; padding-bottom:8px; border-bottom:2px solid var(--border); }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  .kpi-card { background: var(--white); border-radius: 8px; padding: 18px 20px; border: 1px solid var(--grey-100); position: relative; overflow: hidden; }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grey-200); }
+  .kpi-card.amber::before { background: var(--amber); }
+  .kpi-card.forest::before { background: var(--forest); }
+  .kpi-card.coral::before { background: var(--coral); }
+  .kpi-card.olive::before { background: var(--olive); }
+  .kpi-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey-400); margin-bottom: 8px; }
+  .kpi-value { font-size: 26px; font-weight: 700; color: var(--grey-800); line-height: 1; margin-bottom: 6px; }
+  .kpi-sub { font-size: 11px; color: var(--grey-400); line-height: 1.4; }
+  .kpi-sub.pos { color: #2E7D32; }
+  .kpi-sub.neg { color: var(--coral); }
+  .kpi-sub.warn { color: var(--amber); }
 
-.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:10px; margin-bottom:16px; }
-.kpi { background:var(--card); border-radius:6px; padding:14px 16px; border:1px solid var(--border); position:relative; overflow:hidden; }
-.kpi::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background:var(--amber); }
-.kpi.pos::before { background:var(--success); }
-.kpi.neg::before { background:var(--coral); }
-.kpi.warn::before { background:var(--yellow); }
-.kpi.dk::before { background:var(--forest); }
-.kpi-lbl { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--text-light); margin-bottom:6px; }
-.kpi-val { font-size:22px; font-weight:700; line-height:1; margin-bottom:3px; }
-.kpi-sub { font-size:11px; color:var(--text-light); }
-.delta { display:inline-flex; align-items:center; gap:3px; font-size:9px; font-weight:700; padding:2px 7px; border-radius:3px; margin-top:6px; }
-.delta.up { background:rgba(45,138,78,.1); color:var(--success); }
-.delta.down { background:rgba(238,92,95,.1); color:var(--coral); }
-.delta.warn { background:rgba(240,199,29,.1); color:#a08000; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  @media(max-width:900px){ .two-col,.three-col{ grid-template-columns:1fr; } .kpi-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:600px){ .header,.tabs,.main{ padding-left:16px; padding-right:16px; } }
 
-.grid-2 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px; }
-.grid-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:14px; }
-.grid-equal { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+  .card { background: var(--white); border-radius: 8px; border: 1px solid var(--grey-100); overflow: hidden; }
+  .card-header { padding: 14px 20px; border-bottom: 1px solid var(--grey-100); display: flex; align-items: center; justify-content: space-between; }
+  .card-title { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--grey-600); }
+  .card-body { padding: 20px; }
 
-.card { background:var(--card); border-radius:6px; padding:14px 18px; border:1px solid var(--border); }
-.card.full { grid-column:1/-1; }
-.card-hdr { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px; }
-.card-title { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; }
-.card-sub { font-size:11px; color:var(--text-light); margin-top:3px; }
-.badge { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:4px 9px; border-radius:3px; }
-.badge.dk { background:var(--forest); color:#fff; }
-.badge.amber { background:var(--amber); color:#fff; }
-.badge.green { background:rgba(45,138,78,.12); color:var(--success); }
-.badge.red { background:rgba(238,92,95,.12); color:var(--coral); }
-.badge.warn { background:rgba(240,199,29,.12); color:#a08000; }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--grey-400); padding: 8px 12px; text-align: right; border-bottom: 1px solid var(--grey-100); }
+  .data-table th:first-child { text-align: left; }
+  .data-table td { font-size: 13px; padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--grey-100); }
+  .data-table td:first-child { text-align: left; font-weight: 500; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr.total td { font-weight: 700; background: var(--grey-50); border-top: 2px solid var(--grey-200); }
+  .data-table tr.sub td { font-size: 12px; color: var(--grey-600); padding-left: 24px; }
+  .neg { color: var(--coral) !important; }
+  .pos { color: #2E7D32 !important; }
 
-/* SCENARIO PANEL */
-.scenario-panel { background:var(--forest); border-radius:6px; padding:18px 22px; color:#fff; margin-bottom:14px; }
-.sc-title { font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:var(--yellow); margin-bottom:14px; }
-.sc-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:18px; }
-.sc-ctrl { }
-.sc-lbl { font-size:9px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:6px; display:flex; justify-content:space-between; align-items:center; }
-.sc-val { color:var(--yellow); font-size:12px; font-weight:700; }
-input[type=range] { width:100%; height:4px; -webkit-appearance:none; background:rgba(255,255,255,.2); border-radius:2px; outline:none; margin-bottom:4px; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--yellow); cursor:pointer; border:2px solid var(--forest); box-shadow:0 0 0 2px var(--yellow); }
-.sc-ticks { display:flex; justify-content:space-between; font-size:9px; color:rgba(255,255,255,.3); }
-.sc-divider { border-top:1px solid rgba(255,255,255,.1); margin:10px 0; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+  .badge-green { background: var(--green-soft); color: var(--green-text); }
+  .badge-red { background: var(--red-soft); color: var(--red-text); }
+  .badge-amber { background: var(--amber-soft); color: var(--amber-text); }
+  .badge-grey { background: var(--grey-100); color: var(--grey-600); }
 
-.impact-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,.1); }
-.imp-item { text-align:center; }
-.imp-lbl { font-size:9px; letter-spacing:.08em; text-transform:uppercase; color:rgba(255,255,255,.45); margin-bottom:3px; }
-.imp-val { font-size:16px; font-weight:700; }
-.imp-val.good { color:#4ade80; }
-.imp-val.bad { color:var(--coral); }
+  .progress-row { margin-bottom: 14px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px; }
+  .progress-track { height: 6px; background: var(--grey-100); border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--amber); transition: width 0.8s ease; }
 
-/* VARIANCE TABLE */
-.vtable { background:var(--card); border-radius:8px; border:1px solid var(--border); overflow:hidden; margin-bottom:20px; }
-table { width:100%; border-collapse:collapse; }
-thead tr { background:var(--forest); color:#fff; }
-th { padding:11px 14px; font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; text-align:right; }
-th:first-child { text-align:left; }
-tbody tr { border-bottom:1px solid var(--border); }
-tbody tr:hover { background:rgba(17,48,42,.03); }
-tbody tr.sec-row td { font-weight:700; font-size:11px; letter-spacing:.05em; text-transform:uppercase; background:rgba(17,48,42,.06); }
-tbody tr.tot-row { background:var(--forest); }
-tbody tr.tot-row td { font-weight:700; color:#fff !important; font-size:12px; }
-td { padding:9px 14px; font-size:12px; text-align:right; }
-td:first-child { text-align:left; }
-.vp { color:var(--success); font-weight:600; }
-.vn { color:var(--coral); font-weight:600; }
+  .dscr-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
+  .dscr-year { background: var(--grey-50); border-radius: 6px; padding: 12px 8px; text-align: center; border: 1px solid var(--grey-100); }
+  .dscr-year-label { font-size: 10px; color: var(--grey-400); margin-bottom: 4px; font-weight: 600; }
+  .dscr-year-value { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .dscr-year-status { font-size: 10px; font-weight: 600; }
+  .dscr-strong { color: #2E7D32; }
+  .dscr-tight { color: var(--amber); }
+  .dscr-below { color: var(--coral); }
 
-/* RUNWAY */
-.runway-bar { height:10px; background:rgba(17,48,42,.1); border-radius:5px; overflow:hidden; margin:10px 0; }
-.runway-fill { height:100%; border-radius:5px; background:linear-gradient(90deg,var(--forest) 0%,var(--amber) 65%,var(--coral) 100%); transition:width .6s ease; }
+  .vat-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--grey-100); }
+  .vat-row:last-child { border-bottom: none; }
+  .vat-row-label { font-size: 12px; color: var(--grey-600); }
+  .vat-row-value { font-size: 14px; font-weight: 600; }
 
-/* TIMELINE */
-.timeline { display:flex; align-items:center; position:relative; margin:18px 0; }
-.timeline::before { content:''; position:absolute; top:50%; left:0; right:0; height:2px; background:var(--border); transform:translateY(-50%); z-index:0; }
-.tl-item { flex:1; text-align:center; position:relative; z-index:1; }
-.tl-dot { width:13px; height:13px; border-radius:50%; background:var(--border); border:2px solid #fff; margin:0 auto 7px; box-shadow:0 0 0 2px var(--border); }
-.tl-dot.done { background:var(--forest); box-shadow:0 0 0 2px var(--forest); }
-.tl-dot.now { background:var(--amber); box-shadow:0 0 0 2px var(--amber); animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100% { box-shadow:0 0 0 2px var(--amber),0 0 0 6px rgba(205,128,40,.2); } 50% { box-shadow:0 0 0 2px var(--amber),0 0 0 10px rgba(205,128,40,.1); } }
-.tl-lbl { font-size:9px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--text-light); }
-.tl-date { font-size:10px; font-weight:600; color:var(--text-dark); margin-top:2px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; flex: 1; gap: 4px; height: 100%; }
+  .bar-wrap { display: flex; gap: 2px; align-items: flex-end; height: calc(100% - 18px); width: 100%; }
+  .bar { flex: 1; border-radius: 3px 3px 0 0; min-height: 2px; }
+  .bar.budget { background: var(--grey-200); }
+  .bar.actual { background: var(--amber); }
+  .bar.projected { background: var(--forest); opacity: 0.65; }
+  .bar-label { font-size: 9px; color: var(--grey-400); text-align: center; }
 
-/* MODAL */
-.modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:300; align-items:center; justify-content:center; }
-.modal-bg.show { display:flex; }
-.modal { background:#fff; border-radius:12px; padding:30px; width:460px; max-width:90vw; }
-.modal h2 { font-size:15px; font-weight:700; text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; color:var(--forest); }
-.modal p { font-size:12px; color:var(--text-mid); margin-bottom:22px; line-height:1.6; }
-.fg { margin-bottom:14px; }
-.fg label { display:block; font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-mid); margin-bottom:5px; }
-.fg input { width:100%; padding:9px 13px; border:1px solid var(--border); border-radius:6px; font-family:'Space Grotesk',sans-serif; font-size:12px; outline:none; }
-.fg input:focus { border-color:var(--forest); }
-.modal-acts { display:flex; gap:10px; justify-content:flex-end; margin-top:22px; }
-.btn-outline2 { background:transparent; color:var(--text-mid); border:1px solid var(--border); padding:9px 22px; border-radius:6px; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; cursor:pointer; }
+  .signal { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--grey-100); }
+  .signal:last-child { border-bottom: none; }
+  .signal-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .signal-dot.green { background: #4CAF50; }
+  .signal-dot.amber { background: var(--amber); }
+  .signal-dot.red { background: var(--coral); }
+  .signal-text { flex: 1; font-size: 12px; color: var(--grey-600); }
+  .signal-value { font-size: 13px; font-weight: 600; }
 
-/* NOTICE */
-.notice { background:rgba(240,199,29,.1); border:1px solid rgba(240,199,29,.4); border-radius:6px; padding:6px 12px; font-size:10px; color:var(--text-dark); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
+  .obligation { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--grey-100); }
+  .obligation:last-child { border-bottom: none; }
+  .obligation-name { font-size: 12px; color: var(--grey-600); }
+  .obligation-amount { font-size: 13px; font-weight: 600; }
+  .obligation-date { font-size: 11px; color: var(--grey-400); margin-top: 2px; }
 
-/* LOADING */
-.loading-bg { display:none; position:fixed; inset:0; background:rgba(17,48,42,.85); z-index:200; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
-.loading-bg.show { display:flex; }
-.spinner { width:38px; height:38px; border:3px solid rgba(240,199,29,.3); border-top-color:var(--yellow); border-radius:50%; animation:spin .8s linear infinite; }
-@keyframes spin { to { transform:rotate(360deg); } }
-.loading-txt { color:#fff; font-size:12px; letter-spacing:.08em; text-transform:uppercase; }
+  .inv-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  @media(max-width:700px){ .inv-grid{ grid-template-columns:repeat(2,1fr); } }
+  .inv-card { background: var(--forest); border-radius: 8px; padding: 18px; }
+  .inv-card.amber-card { background: var(--amber); }
+  .inv-card-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 8px; }
+  .inv-card-value { font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .inv-card-sub { font-size: 11px; color: rgba(255,255,255,0.5); }
 
-@media(max-width:1024px) { .grid-2,.grid-3,.grid-equal { grid-template-columns:1fr; } .impact-row { grid-template-columns:repeat(2,1fr); } }
-@media(max-width:768px) { .main { padding:16px 20px; } .header,.nav { padding:0 20px; } .kpi-grid { grid-template-columns:repeat(2,1fr); } }
+  .cost-bar-row { margin-bottom: 12px; }
+  .cost-bar-label { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 4px; color: var(--grey-600); }
+  .cost-bar-track { height: 10px; background: var(--grey-100); border-radius: 5px; overflow: hidden; display: flex; }
+  .cost-seg { height: 100%; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--white); border-radius: 10px; padding: 28px; width: 440px; max-width: 95vw; }
+  .modal h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: var(--forest); }
+  .modal p { font-size: 12px; color: var(--grey-400); margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 11px; font-weight: 600; color: var(--grey-600); margin-bottom: 5px; display: block; }
+  .form-input { width: 100%; padding: 9px 12px; border: 1px solid var(--grey-200); border-radius: 5px; font-size: 13px; font-family: 'Space Grotesk', sans-serif; outline: none; }
+  .form-input:focus { border-color: var(--amber); }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+  .notice { background: var(--amber-soft); border: 1px solid #FFE082; border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--amber-text); margin-bottom: 16px; }
+  .info-box { background: var(--grey-50); border-radius: 6px; padding: 12px; font-size: 11px; color: var(--grey-600); line-height: 1.6; margin-top: 12px; }
 </style>
 </head>
 <body>
 
-<div class="loading-bg" id="loadingBg">
-  <div class="spinner"></div>
-  <div class="loading-txt">Syncing with Google Sheets...</div>
-</div>
-
-<div class="modal-bg" id="configModal">
-  <div class="modal">
-    <h2>Connect Google Sheets</h2>
-    <p>Enter your Google Sheets API key and spreadsheet ID. Your key is stored locally in your browser only and never sent anywhere except Google's API.</p>
-    <div class="fg"><label>Google Sheets API Key</label><input type="password" id="apiKey" placeholder="AIza..."></div>
-    <div class="fg"><label>Spreadsheet ID</label><input type="text" id="sheetId" value="1dA455LpWNm6snckF3xPBIAC5svwOP4YonOAPFn-dIwQ"></div>
-    <div class="modal-acts">
-      <button class="btn-outline2" onclick="document.getElementById('configModal').classList.remove('show')">Cancel</button>
-      <button class="btn" onclick="saveConfig()">Save & Connect</button>
+<div class="header">
+  <div class="header-left">
+    <div>
+      <div class="logo">Connect<span>Go</span></div>
+      <div style="font-size:9px;color:var(--grey-400);letter-spacing:0.12em;text-transform:uppercase;margin-top:1px">Financial Intelligence</div>
+    </div>
+    <div class="sync-status">
+      <div class="sync-dot live" id="syncDot"></div>
+      <span id="syncText">Demo data · Jul 2026</span>
     </div>
   </div>
+  <div class="header-actions">
+    <div id="authStatus" style="font-size:10px;color:var(--grey-400);letter-spacing:0.05em;text-transform:uppercase;"></div>
+    <button class="btn-sm btn-ghost" id="authBtn" onclick="handleAuthClick()" title="Sign in with Google to enable writing pipeline updates back to the sheet">⚡ Enable Write</button>
+    <button class="btn-sm btn-ghost" onclick="syncData()" id="syncBtn">↻ Sync</button>
+    <button class="btn-sm btn-ghost" onclick="openConfig()">⚙ Configure</button>
+  </div>
 </div>
 
-<header class="header">
-  <div class="logo">CONNECT<span>GO</span><small>FINANCIAL INTELLIGENCE</small></div>
-  <div class="header-right">
-    <div class="last-upd">Last sync: <span id="lastSync">Never</span></div>
-    <div id="authStatus" style="font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.05em;text-transform:uppercase;"></div>
-    <button class="btn outline" id="authBtn" onclick="handleAuthClick()" title="Sign in with Google to enable writing slider values back to your sheet">⚡ Enable Write</button>
-    <button class="btn outline" onclick="document.getElementById('configModal').classList.add('show');document.getElementById('apiKey').value=CFG.apiKey;document.getElementById('sheetId').value=CFG.sheetId">⚙ Configure</button>
-    <button class="btn" onclick="syncData()" id="syncBtn">↻ Sync</button>
-  </div>
-</header>
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview',this)">Overview</div>
+  <div class="tab" onclick="switchTab('revenue',this)">Revenue & Sales</div>
+  <div class="tab" onclick="switchTab('cash',this)">Cash & Debt</div>
+  <div class="tab" onclick="switchTab('investor',this)">Investor View</div>
+  <div class="tab" onclick="switchTab('pl',this)">P&L Detail</div>
+</div>
 
-<nav class="nav">
-  <div class="nav-tab active" onclick="showTab('overview',this)">Overview</div>
-  <div class="nav-tab" onclick="showTab('actuals',this)">Actuals vs Budget</div>
-  <div class="nav-tab" onclick="showTab('cashflow',this)">Cashflow & Runway</div>
-  <div class="nav-tab" onclick="showTab('scenarios',this)">Scenario Modeller</div>
-  <div class="nav-tab" onclick="showTab('investor',this)">Investor View</div>
-</nav>
+<div class="main">
 
-<main class="main">
-
-<!-- ══ OVERVIEW ══ -->
+<!-- ═══════ TAB 1 — OVERVIEW ═══════ -->
 <div class="tab-content active" id="tab-overview">
-  <div class="notice">ℹ Dashboard showing <strong id="srcLabel">demo data</strong>. Use ⚙ Configure to connect live Google Sheets data.</div>
-  <div class="sec-title">Key Performance Indicators — May 2026</div>
+  <div class="section-label">Key Performance Indicators — <span id="kpi-period-label">latest actuals</span></div>
   <div class="kpi-grid">
-    <div class="kpi dk"><div class="kpi-lbl">Monthly Revenue (Actual)</div><div class="kpi-val">£11,493</div><div class="kpi-sub">vs £19,833 budget</div><div class="delta down">▼ 42% behind budget</div></div>
-    <div class="kpi pos"><div class="kpi-lbl">Cash Position</div><div class="kpi-val">£28,001</div><div class="kpi-sub">as at April 2026</div><div class="delta up">▲ Praetura £149k incoming</div></div>
-    <div class="kpi warn"><div class="kpi-lbl">Runway (incl Praetura)</div><div class="kpi-val" id="kpi-runway">~47 months</div><div class="kpi-sub">at current burn rate</div></div>
-    <div class="kpi neg"><div class="kpi-lbl">Monthly Burn (Net)</div><div class="kpi-val">£3,800</div><div class="kpi-sub">revenue minus costs</div></div>
-    <div class="kpi neg"><div class="kpi-lbl">Reflect for Nature</div><div class="kpi-val" style="color:var(--coral)">£0</div><div class="kpi-sub">vs £10,500 budget</div><div class="delta down">▼ KEY RISK</div></div>
-    <div class="kpi pos"><div class="kpi-lbl">Praetura Loan</div><div class="kpi-val">£150k</div><div class="kpi-sub">Drawn May 2026</div><div class="delta up">▲ £3,261/mo from Jun</div></div>
-  </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue vs Budget — 2026 YTD</div><div class="card-sub">Monthly actual vs forecast by vertical</div></div><span class="badge dk">Jan–Apr Actuals</span></div>
-      <canvas id="c-revBudget"></canvas>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Monthly Revenue (Actual)</div>
+      <div class="kpi-value" id="kpi-rev-actual">£13,129</div>
+      <div class="kpi-sub neg" id="kpi-rev-sub">−£16,049 vs £29,178 budget</div>
     </div>
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue Mix YTD</div><div class="card-sub">Jan–Apr 2026</div></div></div>
-      <canvas id="c-revMix"></canvas>
+    <div class="kpi-card forest">
+      <div class="kpi-label">Cash Position</div>
+      <div class="kpi-value" id="kpi-cash">£28,001</div>
+      <div class="kpi-sub warn" id="kpi-cash-sub">+ £149,250 Praetura incoming</div>
     </div>
-  </div>
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue vs Operating Expenses</div><div class="card-sub">Monthly 2026</div></div></div>
-      <canvas id="c-revExp"></canvas>
+    <div class="kpi-card olive">
+      <div class="kpi-label">Runway — Cash Out Date</div>
+      <div class="kpi-value" id="kpi-runway-date">—</div>
+      <div class="kpi-sub" id="kpi-runway-sub">calculating…</div>
     </div>
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Profitability Roadmap</div></div></div>
-      <div class="timeline">
-        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-lbl">Founded</div><div class="tl-date">2023</div></div>
-        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-lbl">Level Contract</div><div class="tl-date">Jan 2026</div></div>
-        <div class="tl-item"><div class="tl-dot done"></div><div class="tl-lbl">Praetura</div><div class="tl-date">May 2026</div></div>
-        <div class="tl-item"><div class="tl-dot now"></div><div class="tl-lbl">Now</div><div class="tl-date">May 2026</div></div>
-        <div class="tl-item"><div class="tl-dot"></div><div class="tl-lbl">RfN Launch</div><div class="tl-date">Q3 2026</div></div>
-        <div class="tl-item"><div class="tl-dot"></div><div class="tl-lbl">Break-even</div><div class="tl-date" id="be-date">Q1 2027</div></div>
-      </div>
-      <div style="margin-top:18px">
-        <div class="kpi-lbl" style="margin-bottom:10px">Monthly Revenue Needed for Break-even</div>
-        <div style="font-size:30px;font-weight:700;color:var(--forest)">£19,833</div>
-        <div style="font-size:11px;color:var(--text-light);margin-top:4px">Current gap: <strong>£8,340/month</strong> — primarily Reflect for Nature</div>
-      </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Monthly Burn (Net)</div>
+      <div class="kpi-value" style="color:var(--coral)" id="kpi-burn">£5,711</div>
+      <div class="kpi-sub" id="kpi-burn-sub">Apr 2026 EBITDA</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">EBITDA YTD 2026</div>
+      <div class="kpi-value" style="color:var(--coral)" id="kpi-ebitda-ytd">−£18,839</div>
+      <div class="kpi-sub neg" id="kpi-ebitda-ytd-sub">Jan–Apr 2026 actuals</div>
+    </div>
+    <div class="kpi-card coral">
+      <div class="kpi-label">VAT Reserve Needed</div>
+      <div class="kpi-value" id="kpi-vat">£5,147</div>
+      <div class="kpi-sub warn" id="kpi-vat-sub">Q1 due 7 Apr · Q2 building</div>
     </div>
   </div>
-</div>
 
-<!-- ══ ACTUALS ══ -->
-<div class="tab-content" id="tab-actuals">
-  <div class="sec-title">Budget vs Actual — Year to Date 2026</div>
-  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
-    <div class="kpi"><div class="kpi-lbl">YTD Revenue Budget</div><div class="kpi-val">£49,332</div><div class="kpi-sub">Jan–Apr 2026</div></div>
-    <div class="kpi neg"><div class="kpi-lbl">YTD Revenue Actual</div><div class="kpi-val">£37,574</div><div class="kpi-sub">Jan–Apr 2026</div><div class="delta down">▼ £11,758 behind</div></div>
-    <div class="kpi"><div class="kpi-lbl">YTD Costs Budget</div><div class="kpi-val">£77,144</div><div class="kpi-sub">Jan–Apr 2026</div></div>
-    <div class="kpi pos"><div class="kpi-lbl">YTD Costs Actual</div><div class="kpi-val">£55,344</div><div class="kpi-sub">Jan–Apr 2026</div><div class="delta up">▲ £21,800 under</div></div>
-  </div>
-  <div class="grid-equal">
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue by Vertical — Actual vs Budget</div><div class="card-sub">Jan–Apr 2026 YTD</div></div></div>
-      <canvas id="c-vertBudget"></canvas>
+  <div class="card" style="margin-top:12px">
+    <div class="card-header">
+      <div class="card-title">Cash Runway — Key Milestones</div>
+      <div style="font-size:11px;color:var(--grey-400)">Today: Jul 2026</div>
     </div>
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Expense Variance vs Budget</div><div class="card-sub">% over/under — green = under budget</div></div></div>
-      <canvas id="c-expVar"></canvas>
-    </div>
-  </div>
-  <div class="vtable">
-    <table>
-      <thead><tr>
-        <th>Line Item</th>
-        <th>Jan Bud</th><th>Jan Act</th><th>Var</th>
-        <th>Feb Act</th><th>Mar Act</th><th>Apr Act</th>
-        <th>YTD Budget</th><th>YTD Actual</th><th>YTD Var%</th>
-      </tr></thead>
-      <tbody id="vtBody"></tbody>
-    </table>
-  </div>
-</div>
-
-<!-- ══ CASHFLOW ══ -->
-<div class="tab-content" id="tab-cashflow">
-  <div class="sec-title">Cashflow & Runway Analysis</div>
-  <div class="kpi-grid">
-    <div class="kpi pos"><div class="kpi-lbl">Cash (Apr 2026)</div><div class="kpi-val">£28,001</div><div class="kpi-sub">Operating account</div></div>
-    <div class="kpi dk"><div class="kpi-lbl">Praetura (May 2026)</div><div class="kpi-val">+£149,250</div><div class="kpi-sub">Net of arrangement fee</div><div class="delta up">▲ Ring-fenced HSBC</div></div>
-    <div class="kpi warn"><div class="kpi-lbl">Net Monthly Burn</div><div class="kpi-val">£3,800</div><div class="kpi-sub">excl. debt repayments</div></div>
-    <div class="kpi"><div class="kpi-lbl">Praetura Repayment</div><div class="kpi-val">£3,261</div><div class="kpi-sub">from Jun 2026 × 60 months</div></div>
-    <div class="kpi"><div class="kpi-lbl">Quarterly VAT Est.</div><div class="kpi-val">£<span id="cf-vat">2,760</span></div><div class="kpi-sub"><span id="cf-vatpct">30%</span> of revenue VAT-able</div></div>
-    <div class="kpi"><div class="kpi-lbl">Director Loan</div><div class="kpi-val">£49,429</div><div class="kpi-sub">Deferred to profitability</div><div class="delta warn">● Deferred</div></div>
-  </div>
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-hdr"><div><div class="card-title">12-Month Cash Projection</div><div class="card-sub">May 2026 – Apr 2027 · Including Praetura drawdown and monthly repayments</div></div><span class="badge dk">Forward Projection</span></div>
-    <canvas id="c-cashflow"></canvas>
-  </div>
-  <div class="grid-equal">
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Runway Visualiser</div></div></div>
-      <div style="margin:16px 0">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="font-size:12px;color:var(--text-mid)">Total cash incl. Praetura</span>
-          <span style="font-size:22px;font-weight:700;color:var(--forest)" id="runwayVal">~47 months</span>
-        </div>
-        <div class="runway-bar"><div class="runway-fill" id="runwayFill" style="width:78%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-light)"><span>Now</span><span>12mo</span><span>24mo</span><span>36mo</span><span>48mo</span><span>60mo</span></div>
+    <div class="card-body" style="padding:16px 20px">
+      <div style="position:relative;padding:8px 0 52px 0">
+        <div style="position:absolute;top:18px;left:0;right:0;height:4px;background:var(--grey-100);border-radius:2px"></div>
+        <div style="position:absolute;top:18px;left:0;width:40%;height:4px;background:linear-gradient(90deg,var(--forest),var(--amber));border-radius:2px"></div>
+        <!-- Milestones: Now, Praetura Jun26, Ed Aug26, Break-even Jan28, DL cleared Apr29, Cash-out Apr30, Praetura repaid Jun31 -->
+        <div style="position:absolute;top:10px;left:0%;transform:translateX(-50%)"><div style="width:20px;height:20px;border-radius:50%;background:var(--forest);border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,0.2);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;font-weight:700;color:var(--forest)">Now</div><div style="font-size:8px;color:var(--grey-400)">Jul 2026</div></div></div>
+        <div style="position:absolute;top:12px;left:3%;transform:translateX(-50%)"><div style="width:16px;height:16px;border-radius:50%;background:var(--coral);border:2px solid var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.15);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;color:var(--coral)">Praetura DD</div><div style="font-size:8px;color:var(--grey-400)">Jun 2026</div></div></div>
+        <div style="position:absolute;top:12px;left:7%;transform:translateX(-50%)"><div style="width:16px;height:16px;border-radius:50%;background:var(--amber);border:2px solid var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.15);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;color:var(--amber)">Ed equity</div><div style="font-size:8px;color:var(--grey-400)">Aug 2026</div></div></div>
+        <div style="position:absolute;top:10px;left:40%;transform:translateX(-50%)"><div style="width:20px;height:20px;border-radius:50%;background:#4CAF50;border:3px solid var(--white);box-shadow:0 1px 4px rgba(0,0,0,0.2);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;font-weight:700;color:#2E7D32">Break-even</div><div style="font-size:8px;color:var(--grey-400)">Jan 2028</div></div></div>
+        <div style="position:absolute;top:12px;left:57%;transform:translateX(-50%)"><div style="width:16px;height:16px;border-radius:50%;background:var(--olive);border:2px solid var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.15);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;color:var(--olive)">DL cleared</div><div style="font-size:8px;color:var(--grey-400)">Apr 2029</div></div></div>
+        <div style="position:absolute;top:10px;left:72%;transform:translateX(-50%)" id="cashout-marker"><div style="width:22px;height:22px;border-radius:50%;background:var(--coral);border:3px solid var(--white);box-shadow:0 2px 8px rgba(238,92,95,0.4);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;font-weight:700;color:var(--coral)">⚠ Cash out</div><div style="font-size:8px;color:var(--grey-400)" id="cashout-label">Apr 2030*</div></div></div>
+        <div style="position:absolute;top:12px;left:100%;transform:translateX(-50%)"><div style="width:16px;height:16px;border-radius:50%;background:var(--forest);border:2px solid var(--white);box-shadow:0 1px 3px rgba(0,0,0,0.15);margin:0 auto"></div><div style="margin-top:6px;text-align:center;white-space:nowrap"><div style="font-size:9px;color:var(--forest)">Praetura repaid</div><div style="font-size:8px;color:var(--grey-400)">Jun 2031</div></div></div>
       </div>
-      <div style="margin-top:22px">
-        <div class="kpi-lbl" style="margin-bottom:10px">VAT Scenario — % of Revenue VAT-able</div>
-        <div style="display:flex;align-items:center;gap:14px">
-          <input type="range" min="0" max="100" value="30" step="10" id="vatSlider" oninput="updateVAT(this.value)" style="flex:1">
-          <span style="font-size:18px;font-weight:700;color:var(--forest);min-width:42px" id="vatPctDisp">30%</span>
+      <div style="font-size:10px;color:var(--grey-400);border-top:1px solid var(--grey-100);padding-top:10px;margin-top:4px">* Cash out assumes no revenue growth beyond current projections and no further fundraising. Break-even in Jan 2028 will extend this date materially as actuals improve.</div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:16px">
+    <div class="card">
+      <div class="card-header"><div class="card-title">Vertical Health</div></div>
+      <div class="card-body" id="verticalHealth"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Upcoming Obligations</div></div>
+      <div class="card-body">
+        <div class="obligation">
+          <div><div class="obligation-name">Praetura DD</div><div class="obligation-date">Monthly · Jun 2026 onwards</div></div>
+          <div class="obligation-amount" id="ob-praetura">£3,261</div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-light);margin-top:3px"><span>0% (all overseas B2B)</span><span>100% (all UK)</span></div>
-        <div style="margin-top:14px;padding:12px;background:rgba(17,48,42,.05);border-radius:6px">
-          <div style="font-size:11px;color:var(--text-mid)">Estimated quarterly VAT payment</div>
-          <div style="font-size:22px;font-weight:700;color:var(--forest);margin-top:4px">£<span id="vatAmt">2,760</span></div>
-          <div style="font-size:10px;color:var(--text-light);margin-top:2px">Due 7th of month after quarter end (Jul, Oct, Jan, Apr)</div>
+        <div class="obligation">
+          <div><div class="obligation-name" id="ob-vat-label">VAT — next quarter</div><div class="obligation-date" id="ob-vat-date">Due 7 July 2026</div></div>
+          <div class="obligation-amount" style="color:var(--amber)" id="ob-vat">~£5,147</div>
+        </div>
+        <div class="obligation">
+          <div><div class="obligation-name">Director Loan Repayment</div><div class="obligation-date">£3,000/month from Jan 2028</div></div>
+          <div class="obligation-amount">£3,000</div>
+        </div>
+        <div class="obligation">
+          <div><div class="obligation-name">Ed McAlpine — Tranche 1</div><div class="obligation-date">£50k equity · closing Aug 2026</div></div>
+          <div class="obligation-amount" style="color:var(--green-text)">+£50,000</div>
         </div>
       </div>
     </div>
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Debt Position</div></div></div>
-      <div style="margin-bottom:16px">
-        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px">Praetura Asset Finance — Active</div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Amount drawn</span><span style="font-weight:600">£150,000</span></div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Arrangement fee</span><span style="font-weight:600">£750</span></div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Monthly repayment</span><span style="font-weight:600">£3,261.36</span></div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Term</span><span style="font-weight:600">60 months</span></div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Total interest</span><span style="font-weight:600">£45,682</span></div>
-        <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Status</span><span style="font-weight:600">Active</span></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-header">
+      <div class="card-title">Revenue vs Total Costs — 2026 Monthly</div>
+      <div style="display:flex;gap:12px;font-size:11px;color:var(--grey-400)">
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--amber);border-radius:2px;display:inline-block"></span>Revenue (actual)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--forest);opacity:0.65;border-radius:2px;display:inline-block"></span>Revenue (projected)</span>
+        <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;background:var(--coral);opacity:0.75;border-radius:2px;display:inline-block"></span>Total Costs</span>
       </div>
-      <div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-light);margin-bottom:10px">HSBC Loan — Decision Pending</div>
-        <div style="padding:12px;background:rgba(240,199,29,.08);border:1px solid rgba(240,199,29,.3);border-radius:6px;font-size:11px;color:var(--text-mid);line-height:1.6">With Praetura providing £149k runway of ~47 months, the HSBC decision can be deferred to Q3 2026 when Reflect for Nature revenue clarity will materially change the calculus.</div>
-      </div>
+    </div>
+    <div class="card-body">
+      <div class="bar-chart" id="revBarChart"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ SCENARIOS ══ -->
-<div class="tab-content" id="tab-scenarios">
-  <div class="sec-title">Scenario Modeller — Mirrors Controls Sheet Rows 44, 45, 46 & 48</div>
-  <div class="notice">⚡ Sliders reflect exact values in your Google Sheets Controls cells. With write access enabled, moving a slider updates the model directly.</div>
+<!-- ═══════ TAB 2 — REVENUE & SALES ═══════ -->
+<div class="tab-content" id="tab-revenue">
 
-  <div class="scenario-panel">
-    <div class="sc-title">▶ Revenue Scenario Controls</div>
-    <div class="sc-grid">
-      <div class="sc-ctrl">
-        <div class="sc-lbl">Reflect Revenue Share (E45)<span class="sc-val" id="lbl-rs">15%</span></div>
-        <input type="range" min="15" max="50" value="15" step="1" id="sl-rs" oninput="runScenario()">
-        <div class="sc-ticks"><span>15%</span><span>25%</span><span>40%</span><span>50%</span></div>
-      </div>
-      <div class="sc-ctrl">
-        <div class="sc-lbl">Reflect Customer Growth (E44)<span class="sc-val" id="lbl-rg">100%/yr</span></div>
-        <input type="range" min="25" max="100" value="100" step="25" id="sl-rg" oninput="runScenario()">
-        <div class="sc-ticks"><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
-      </div>
-      <div class="sc-ctrl">
-        <div class="sc-lbl">C4C Customer Growth (E46)<span class="sc-val" id="lbl-cg">50%/yr</span></div>
-        <input type="range" min="25" max="100" value="50" step="25" id="sl-cg" oninput="runScenario()">
-        <div class="sc-ticks"><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
-      </div>
-      <div class="sc-ctrl">
-        <div class="sc-lbl">Inflation Rate (E48)<span class="sc-val" id="lbl-inf">3.5%</span></div>
-        <input type="range" min="1" max="8" value="3.5" step="0.5" id="sl-inf" oninput="runScenario()">
-        <div class="sc-ticks"><span>1%</span><span>3.5%</span><span>6%</span><span>8%</span></div>
+  <!-- Revenue mix donut + trajectory side by side -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header"><div class="card-title">2026 Revenue Mix</div><div style="font-size:11px;color:var(--grey-400)" id="donutTotalLabel">£238,640 total</div></div>
+      <div class="card-body" style="display:flex;align-items:center;gap:20px">
+        <div style="flex-shrink:0">
+          <svg viewBox="0 0 120 120" width="120" height="120" id="donutSvg"></svg>
+        </div>
+        <div style="flex:1" id="donutLegend"></div>
       </div>
     </div>
-    <div class="impact-row">
-      <div class="imp-item"><div class="imp-lbl">2026 Revenue</div><div class="imp-val" id="imp-rev2026">£248k</div></div>
-      <div class="imp-item"><div class="imp-lbl">2027 Revenue</div><div class="imp-val" id="imp-rev2027">£330k</div></div>
-      <div class="imp-item"><div class="imp-lbl">2026 EBITDA</div><div class="imp-val bad" id="imp-ebitda">-£186k</div></div>
-      <div class="imp-item"><div class="imp-lbl">Break-even Year</div><div class="imp-val good" id="imp-be">2027</div></div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Revenue Trajectory — 2026 to 2030</div></div>
+      <div class="card-body">
+        <svg viewBox="0 0 380 130" width="100%" id="miniTrajSvg"></svg>
+        <div style="display:flex;gap:12px;justify-content:center;margin-top:6px;font-size:10px;color:var(--grey-400)">
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:12px;height:3px;background:var(--amber);display:inline-block;border-radius:2px"></span>Reflect</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:12px;height:3px;background:var(--forest);display:inline-block;border-radius:2px"></span>C4C</span>
+          <span style="display:flex;align-items:center;gap:3px"><span style="width:12px;height:3px;background:var(--grey-200);display:inline-block;border-radius:2px"></span>Total</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="grid-equal">
+  <!-- Sales pipeline trackers -->
+  <div class="section-label" style="margin-top:24px">2026 Sales Pipeline — Customers to Close</div>
+  <div style="font-size:11px;color:var(--grey-400);margin-bottom:12px">Each circle = one customer. ● Closed &nbsp; ○ Target remaining. ConnectGo receives 40% revenue share on Reflect from Aug 2026.</div>
+
+  <div class="two-col">
+    <!-- Reflect pipeline -->
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue Trajectory — 2026 to 2030</div><div class="card-sub">Reacts to slider changes above</div></div></div>
-      <canvas id="c-scRev"></canvas>
+      <div class="card-header">
+        <div class="card-title">Reflect</div>
+        <div style="font-size:11px;color:var(--amber);font-weight:600">40% rev share from Aug 2026</div>
+      </div>
+      <div class="card-body" id="reflectPipeline"></div>
     </div>
+    <!-- C4C pipeline -->
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">EBITDA Path to Profitability</div><div class="card-sub">Revenue minus all costs incl. payroll & debt repayments</div></div></div>
-      <canvas id="c-scEbitda"></canvas>
+      <div class="card-header">
+        <div class="card-title">C4C</div>
+        <div style="font-size:11px;color:var(--forest);font-weight:600">Direct subscription revenue</div>
+      </div>
+      <div class="card-body" id="c4cPipeline"></div>
+    </div>
+  </div>
+
+  <!-- Actuals vs projection -->
+  <div class="section-label" style="margin-top:24px">Actuals vs Projection — <span id="actualsMonthsLabel">Jan–Apr 2026</span></div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table class="data-table">
+        <thead><tr id="actualsHead"><th>Line Item</th></tr></thead>
+        <tbody id="actualsBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
 
-<!-- ══ INVESTOR ══ -->
+<!-- ═══════ TAB 3 — CASH & DEBT ═══════ -->
+<div class="tab-content" id="tab-cash">
+  <div class="three-col">
+    <div class="kpi-card forest">
+      <div class="kpi-label" id="cd-cash-label">Cash — latest actual</div>
+      <div class="kpi-value" id="cd-cash">£28,001</div>
+      <div class="kpi-sub warn">+ £149,250 Praetura May 2026</div>
+    </div>
+    <div class="kpi-card amber">
+      <div class="kpi-label">Combined Loan Balance (Dec 2026)</div>
+      <div class="kpi-value" id="cd-loan-balance">£183,562</div>
+      <div class="kpi-sub">£3,261/mo Praetura · 60 months from Jun</div>
+    </div>
+    <div class="kpi-card coral">
+      <div class="kpi-label">Director Loan</div>
+      <div class="kpi-value" id="cd-director-loan">£45,669</div>
+      <div class="kpi-sub">Deferred to sustained profitability</div>
+    </div>
+  </div>
+
+  <div class="two-col" style="margin-top:16px">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">Debt Service Coverage Ratio</div>
+        <div class="badge badge-grey" style="font-size:10px">EBITDA ÷ Debt Service</div>
+      </div>
+      <div class="card-body">
+        <div class="dscr-grid" id="dscrGrid"></div>
+        <div class="info-box" id="dscrInfoBox"><strong>DSCR</strong> = EBITDA ÷ Annual Debt Service (Praetura + Director Loan).</div>
+        <div style="margin-top:14px">
+          <div style="font-size:10px;color:var(--grey-400);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px">Max additional debt service before 1.25x breach</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px" id="dscrHeadroom"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><div class="card-title">VAT Liability Tracker</div><div class="badge badge-amber">Quarterly</div></div>
+      <div class="card-body" id="vatTracker"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-header"><div class="card-title">Debt Schedule — Annual Summary</div></div>
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table class="data-table">
+        <thead><tr id="debtScheduleHead"><th>Line Item</th></tr></thead>
+        <tbody id="debtScheduleBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ TAB 4 — INVESTOR VIEW ═══════ -->
 <div class="tab-content" id="tab-investor">
-  <div class="sec-title">Investor Summary — ConnectGo Limited</div>
-  <div class="kpi-grid">
-    <div class="kpi dk"><div class="kpi-lbl">Pre-money Valuation</div><div class="kpi-val">£1.67M</div><div class="kpi-sub">Angel term sheet basis</div><div class="delta up">▲ 3% equity for £50k</div></div>
-    <div class="kpi"><div class="kpi-lbl">ARR (Confirmed)</div><div class="kpi-val">£138k</div><div class="kpi-sub">Level + C4C contracts</div><div class="delta up">▲ Contracted revenue</div></div>
-    <div class="kpi pos"><div class="kpi-lbl">Gross Margin</div><div class="kpi-val">87%</div><div class="kpi-sub">After COGS — SaaS model</div></div>
-    <div class="kpi warn"><div class="kpi-lbl">2026 Capital Raise</div><div class="kpi-val">£200k</div><div class="kpi-sub">£150k debt + £50k equity</div><div class="delta warn">● In progress</div></div>
+  <div class="section-label">Key Metrics — ConnectGo Limited</div>
+  <div class="inv-grid">
+    <div class="inv-card amber-card">
+      <div class="inv-card-label">2026 Annual Revenue</div>
+      <div class="inv-card-value" id="inv-rev26">£238,640</div>
+      <div class="inv-card-sub">Base case model</div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-card-label" id="inv-growth-label">Revenue Growth 2027→2028</div>
+      <div class="inv-card-value" id="inv-growth">+54%</div>
+      <div class="inv-card-sub" id="inv-growth-sub">£273k → £421k</div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-card-label" id="inv-gm-label">Gross Margin (2028)</div>
+      <div class="inv-card-value" id="inv-gm">90.5%</div>
+      <div class="inv-card-sub">After COGS</div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-card-label">Break-even (EBITDA)</div>
+      <div class="inv-card-value" id="inv-be-year">2028</div>
+      <div class="inv-card-sub" id="inv-be-sub">First full positive year · £111k</div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-card-label" id="inv-ebitda30-label">2030 EBITDA Target</div>
+      <div class="inv-card-value" id="inv-ebitda30">£574,503</div>
+      <div class="inv-card-sub" id="inv-ebitda30-sub">57% EBITDA margin</div>
+    </div>
+    <div class="inv-card amber-card">
+      <div class="inv-card-label">Pre-money Valuation</div>
+      <div class="inv-card-value">£1.67M</div>
+      <div class="inv-card-sub">Ed McAlpine term sheet</div>
+    </div>
   </div>
-  <div class="grid-equal">
+
+  <div class="two-col" style="margin-top:16px">
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">10-Year Revenue Trajectory</div><div class="card-sub">Base case forecast 2026–2035</div></div><span class="badge amber">Forecast</span></div>
-      <canvas id="c-10yr"></canvas>
+      <div class="card-header"><div class="card-title">Revenue & EBITDA — 2026 to 2030</div></div>
+      <div class="card-body">
+        <svg viewBox="0 0 500 180" width="100%" preserveAspectRatio="xMidYMid meet" id="trajSvg"></svg>
+        <div style="display:flex;gap:16px;justify-content:center;margin-top:8px;font-size:12px;color:var(--grey-600);font-weight:500">
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:24px;height:3px;background:var(--amber);display:inline-block;border-radius:2px"></span>Revenue</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:24px;height:0px;border-top:2px dashed var(--forest);display:inline-block"></span>EBITDA</span>
+        </div>
+      </div>
     </div>
+
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Revenue vs Total Costs</div><div class="card-sub">Path to sustained profitability</div></div></div>
-      <canvas id="c-revCost"></canvas>
+      <div class="card-header"><div class="card-title">Margin Progression — 2026 to 2030</div></div>
+      <div class="card-body">
+        <svg viewBox="0 0 380 160" width="100%" id="marginSvg"></svg>
+        <div style="display:flex;gap:20px;justify-content:center;margin-top:6px;font-size:12px;color:var(--grey-600);font-weight:500">
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:24px;height:3px;background:var(--amber);display:inline-block;border-radius:2px"></span>Gross Margin %</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:24px;height:3px;background:var(--forest);display:inline-block;border-radius:2px"></span>EBITDA Margin %</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:14px" id="marginYearGrid"></div>
+      </div>
     </div>
   </div>
-  <div class="grid-3">
+
+  <div class="two-col" style="margin-top:16px">
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Use of Funds — Debt</div><div class="card-sub">£150k Praetura</div></div></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Bridge operating deficit</span><span style="font-weight:600">£96,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Platform development</span><span style="font-weight:600">£30,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Sales & marketing</span><span style="font-weight:600">£15,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Working capital buffer</span><span style="font-weight:600">£9,000</span></div>
+      <div class="card-header"><div class="card-title">Capital Structure</div></div>
+      <div class="card-body">
+        <div class="obligation"><div><div class="obligation-name">Kate McAlpine (Founder)</div><div class="obligation-date">Ordinary shares</div></div><div class="obligation-amount">87%</div></div>
+        <div class="obligation"><div><div class="obligation-name">Ed McAlpine (Angel — Tranche 1)</div><div class="obligation-date">£50k · 3% equity · closing Aug 2026 · £1.67M pre-money</div></div><div class="obligation-amount">3%</div></div>
+        <div class="obligation"><div><div class="obligation-name">Employee Share Pool</div><div class="obligation-date">10% pool carved out pre-Ed · unissued · SEIS/EIS compliant</div></div><div class="obligation-amount" style="color:var(--olive)">10%</div></div>
+        <div class="obligation"><div><div class="obligation-name">Ed McAlpine — Tranche 2</div><div class="obligation-date">£100k · conditional on sales milestone · valuation TBC</div></div><div class="obligation-amount" style="color:var(--amber)">Pending</div></div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--grey-100)">
+          <div style="font-size:11px;color:var(--grey-400)">SEIS/EIS eligibility maintained · All future raises into ConnectGo Ltd · Employee pool unissued pending option scheme setup</div>
+        </div>
+      </div>
     </div>
     <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Use of Funds — Equity</div><div class="card-sub">£50k Angel</div></div></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Reflect for Nature commercialisation</span><span style="font-weight:600">£20,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Business development</span><span style="font-weight:600">£15,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">AI module development</span><span style="font-weight:600">£10,000</span></div>
-      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Legal & IP</span><span style="font-weight:600">£5,000</span></div>
-    </div>
-    <div class="card">
-      <div class="card-hdr"><div><div class="card-title">Risk Register</div></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Reflect for Nature revenue</span><span class="badge red">High Risk</span></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">SaaS pricing not finalised</span><span class="badge warn">Medium</span></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Single client concentration</span><span class="badge warn">Medium</span></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px"><span style="color:var(--text-mid)">Director Loan repayment</span><span class="badge green">Deferred</span></div>
+      <div class="card-header"><div class="card-title">Funding Stack</div></div>
+      <div class="card-body">
+        <div class="obligation"><div><div class="obligation-name">Praetura Asset Finance</div><div class="obligation-date">£150k drawn May 2026 · 60 months · £3,261/month from Jun</div></div><div class="obligation-amount">£150k</div></div>
+        <div class="obligation"><div><div class="obligation-name">Ed McAlpine — Equity Tranche 1</div><div class="obligation-date">3% equity · closing Aug 2026</div></div><div class="obligation-amount" style="color:var(--green-text)">£50k</div></div>
+        <div class="obligation"><div><div class="obligation-name">Innovate UK Innovation Loan</div><div class="obligation-date">£131,226 · application in progress · 2 drawdowns of £65,613</div></div><div class="obligation-amount" style="color:var(--amber)">Pending</div></div>
+        <div class="obligation"><div><div class="obligation-name">Director Loan</div><div class="obligation-date">£45,669 · repaying £3k/month from Jan 2028 · cleared Apr 2029</div></div><div class="obligation-amount" style="color:var(--grey-400)">£45,669</div></div>
+      </div>
     </div>
   </div>
 </div>
 
-</main>
+<!-- ═══════ TAB 5 — P&L DETAIL ═══════ -->
+<div class="tab-content" id="tab-pl">
+  <div class="section-label">Annual P&L Summary — Model Projections (£)</div>
+  <div class="card">
+    <div class="card-body" style="padding:0;overflow-x:auto">
+      <table class="data-table">
+        <thead><tr id="plHead"><th>Line Item</th></tr></thead>
+        <tbody id="plBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+
+</div>
+
+</div><!-- /main -->
+
+<!-- CONFIG MODAL -->
+<div class="modal-overlay" id="configModal">
+  <div class="modal">
+    <h3>Connect Google Sheets</h3>
+    <p>Enter your API key and confirm the spreadsheet ID to sync live data. Your key is stored in your browser only.</p>
+    <div class="form-group"><label class="form-label">Google Sheets API Key</label><input class="form-input" type="password" id="apiKeyInput" placeholder="AIza…"></div>
+    <div class="form-group"><label class="form-label">Spreadsheet ID</label><input class="form-input" type="text" id="sheetIdInput" value="1dA455LpWNm6snckF3xPBIAC5svwOP4YonOAPFn-dIwQ"></div>
+    <div class="modal-actions">
+      <button class="btn-sm btn-ghost" onclick="closeConfig()">Cancel</button>
+      <button class="btn-sm btn-amber" onclick="saveConfig()">Save & Connect</button>
+    </div>
+  </div>
+</div>
 
 <script>
-Chart.defaults.font.family = "'Space Grotesk', sans-serif";
-Chart.defaults.color = '#4a4a4a';
-
-// ── CONFIG ──
-const CFG = { apiKey: localStorage.getItem('cg_key')||'', sheetId: localStorage.getItem('cg_sid')||'1dA455LpWNm6snckF3xPBIAC5svwOP4YonOAPFn-dIwQ' };
-function saveConfig() {
-  CFG.apiKey = document.getElementById('apiKey').value.trim();
-  CFG.sheetId = document.getElementById('sheetId').value.trim();
-  localStorage.setItem('cg_key', CFG.apiKey);
-  localStorage.setItem('cg_sid', CFG.sheetId);
-  document.getElementById('configModal').classList.remove('show');
-  if (CFG.apiKey || accessToken) syncData();
+// ── TABS ──
+function switchTab(name, el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ── GOOGLE OAUTH ──
+// ── CONFIG ──
+let apiKey = localStorage.getItem('cg_api_key') || '';
+let sheetId = localStorage.getItem('cg_sheet_id') || '1dA455LpWNm6snckF3xPBIAC5svwOP4YonOAPFn-dIwQ';
+function openConfig() {
+  document.getElementById('apiKeyInput').value = apiKey;
+  document.getElementById('sheetIdInput').value = sheetId;
+  document.getElementById('configModal').classList.add('open');
+}
+function closeConfig() { document.getElementById('configModal').classList.remove('open'); }
+function saveConfig() {
+  apiKey = document.getElementById('apiKeyInput').value.trim();
+  sheetId = document.getElementById('sheetIdInput').value.trim();
+  localStorage.setItem('cg_api_key', apiKey);
+  localStorage.setItem('cg_sheet_id', sheetId);
+  closeConfig();
+  syncData();
+}
+
+// ── GOOGLE OAUTH (write access — sales pipeline "closed deal" counts) ──
 const OAUTH_CLIENT_ID = '621921788051-djpb27vhlh1il09n0jmto48cp0gahsl7.apps.googleusercontent.com';
 const OAUTH_SCOPE = 'https://www.googleapis.com/auth/spreadsheets';
-let accessToken = null;
-let tokenClient = null;
-let tokenExpiry = 0;
+let accessToken = null, tokenClient = null, tokenExpiry = 0;
 
 function initOAuth() {
   if (typeof google === 'undefined' || !google.accounts) return;
@@ -463,452 +583,887 @@ function initOAuth() {
     },
   });
 }
-
 function handleAuthClick() {
   if (accessToken && Date.now() < tokenExpiry) {
-    // Already signed in — revoke
-    google.accounts.oauth2.revoke(accessToken, () => {
-      accessToken = null;
-      tokenExpiry = 0;
-      updateAuthUI(false);
-    });
+    google.accounts.oauth2.revoke(accessToken, () => { accessToken = null; tokenExpiry = 0; updateAuthUI(false); });
   } else {
-    // Not signed in — request token (no consent screen if already granted)
     if (!tokenClient) initOAuth();
     tokenClient.requestAccessToken({ prompt: '' });
   }
 }
-
 function ensureFreshToken() {
-  // If token is about to expire, silently refresh
-  if (tokenClient && accessToken && Date.now() > tokenExpiry) {
-    tokenClient.requestAccessToken({ prompt: '' });
-  }
+  if (tokenClient && accessToken && Date.now() > tokenExpiry) tokenClient.requestAccessToken({ prompt: '' });
 }
-
 function updateAuthUI(signedIn) {
-  const btn = document.getElementById('authBtn');
-  const status = document.getElementById('authStatus');
+  const btn = document.getElementById('authBtn'), status = document.getElementById('authStatus');
   if (signedIn) {
     btn.textContent = '✓ Write Enabled';
-    btn.style.background = 'rgba(45,138,78,0.3)';
-    btn.style.borderColor = 'rgba(45,138,78,0.6)';
-    btn.style.color = '#4ade80';
+    btn.style.color = '#4CAF50'; btn.style.borderColor = '#4CAF50';
     status.textContent = 'Write access active';
   } else {
     btn.textContent = '⚡ Enable Write';
-    btn.style.background = '';
-    btn.style.borderColor = '';
-    btn.style.color = '';
+    btn.style.color = ''; btn.style.borderColor = '';
     status.textContent = '';
   }
 }
+window.addEventListener('load', () => {
+  const poll = setInterval(() => {
+    if (typeof google !== 'undefined' && google.accounts) { initOAuth(); clearInterval(poll); }
+  }, 200);
+});
 
-// ── COLORS ──
-const C = { forest:'#11302A', amber:'#CD8028', yellow:'#F0C71D', coral:'#EE5C5F', olive:'#858755', burgundy:'#511433',
-  forestA:'rgba(17,48,42,0.12)', amberA:'rgba(205,128,40,0.15)', coralA:'rgba(238,92,95,0.12)' };
-
-// ── MODEL CONSTANTS (from Controls sheet) ──
-const MODEL = {
-  inflation: 0.035,
-  // 2026 base prices (annual)
-  prices: { rfcFixed:100000, carbon:7900, cbo:4700, midNGO:20000, largeNGO:39400, impact:39400, c4cInterco:37560, c4cDirect:26125, c4cSelf:6866 },
-  // Sales volumes per year [2026..2030]
-  sales: {
-    carbon:      [6,12,24,48,96],
-    cbo:         [3,6,3,1,1],
-    midNGO:      [1,2,4,8,16],
-    largeNGO:    [1,2,4,8,16],
-    impact:      [1,2,4,8,16],
-    c4cInterco:  [1,1,0,0,0],
-    c4cDirect:   [2,3,5,8,12],
-    c4cSelf:     [5,8,12,18,27],
-  },
-  // Annual total costs (OpEx + payroll + COGS) from Annual PL
-  baseCosts: [200310, 230642, 317290, 322157, 334965],
-  // Annual debt repayments
-  debtRepay: [22830, 39136, 39136, 39136, 39136],
+// ── SHEETS READ/WRITE ──
+const RANGES = {
+  scenario:        'Controls!E46:E50',
+  pipelineTargets: 'Controls!A14:E42',
+  pipelineClosed:  'Controls!A140:E146',
+  bva:             `'Budget vs Actual 2026'!A6:BA34`,
+  annualPL:        `'Annual PL'!A5:N49`,
+  debtOverview:    `'Debt Overview'!A4:L24`,
+  vatTracker:      `'Debt Overview'!A26:H44`,
 };
+const RANGE_KEYS = Object.keys(RANGES);
 
-// ── REVENUE CALCULATOR ──
-// Mirrors the Google Sheets formula exactly:
-// Revenue = RfcFixed*inf + Σ(price*inf * sales*growthAdj * revShare) + C4C
-function calcYearRevenue(yearIdx, revShare, reflectGrowth, c4cGrowth) {
-  const inf = Math.pow(1 + MODEL.inflation, yearIdx);
-  // Growth adjustment vs base (base = 100% reflect, 50% c4c)
-  const rAdj = yearIdx === 0 ? 1 : Math.pow(1 + reflectGrowth/100, yearIdx) / Math.pow(2, yearIdx);
-  const cAdj = yearIdx === 0 ? 1 : Math.pow(1 + c4cGrowth/100, yearIdx) / Math.pow(1.5, yearIdx);
-  const s = MODEL.sales;
-  const p = MODEL.prices;
-  const rs = revShare / 100;
-
-  const rfcFixed = p.rfcFixed * inf;
-  const reflectSales = (
-    p.carbon  * s.carbon[yearIdx]  * rAdj +
-    p.cbo     * s.cbo[yearIdx]     * rAdj +
-    p.midNGO  * s.midNGO[yearIdx]  * rAdj +
-    p.largeNGO* s.largeNGO[yearIdx]* rAdj +
-    p.impact  * s.impact[yearIdx]  * rAdj
-  ) * inf * rs;
-  const c4c = (
-    p.c4cInterco * s.c4cInterco[yearIdx] +
-    p.c4cDirect  * s.c4cDirect[yearIdx]  * cAdj +
-    p.c4cSelf    * s.c4cSelf[yearIdx]    * cAdj
-  ) * inf;
-  return Math.round(rfcFixed + reflectSales + c4c);
-}
-
-function calcAllRevenues(revShare, reflectGrowth, c4cGrowth) {
-  return [0,1,2,3,4].map(i => calcYearRevenue(i, revShare, reflectGrowth, c4cGrowth));
-}
-
-function calcEbitda(revenues, inflation) {
-  return revenues.map((r, i) => {
-    const infAdj = Math.pow(inflation/3.5, i * 0.15);
-    const costs = MODEL.baseCosts[i] * infAdj + MODEL.debtRepay[i];
-    return Math.round(r - costs);
-  });
-}
-
-// ── CHARTS MAP ──
-const CH = {};
-function destroyChart(id) { if (CH[id]) { CH[id].destroy(); delete CH[id]; } }
-
-// ── TABS ──
-function showTab(id, el) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-'+id).classList.add('active');
-  el.classList.add('active');
-  setTimeout(() => buildChartsForTab(id), 40);
-}
-
-function buildChartsForTab(tab) {
-  if (tab==='overview') { buildRevBudget(); buildRevMix(); buildRevExp(); }
-  if (tab==='actuals')  { buildVertBudget(); buildExpVar(); buildVTable(); }
-  if (tab==='cashflow') { buildCashflow(); }
-  if (tab==='scenarios'){ runScenario(); }
-  if (tab==='investor') { build10Yr(); buildRevCost(); }
-}
-
-// ── OVERVIEW CHARTS ──
-function buildRevBudget() {
-  destroyChart('revBudget');
-  const ctx = document.getElementById('c-revBudget');
-  if (!ctx) return;
-  CH.revBudget = new Chart(ctx, { type:'bar', data:{
-    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets:[
-      { label:'Budget', data:[19833,19833,19833,19833,19833,19833,19833,19833,19833,19833,19833,19833], backgroundColor:C.forestA, borderColor:C.forest, borderWidth:1.5, borderRadius:3 },
-      { label:'Actual', data:[10939,10904,9093,13129,null,null,null,null,null,null,null,null], backgroundColor:C.amber, borderWidth:0, borderRadius:3 }
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false}, ticks:{font:{size:10}} } }
-  }});
-}
-
-function buildRevMix() {
-  destroyChart('revMix');
-  const ctx = document.getElementById('c-revMix');
-  if (!ctx) return;
-  CH.revMix = new Chart(ctx, { type:'doughnut', data:{
-    labels:['Reflect for Carbon','Reflect for Nature','C4C'],
-    datasets:[{ data:[33998,0,12520], backgroundColor:[C.forest,C.coral,C.amber], borderWidth:3, borderColor:'#F5F2EC', hoverOffset:8 }]
-  }, options:{ responsive:true, maintainAspectRatio:false, cutout:'65%',
-    plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:10}, padding:10 } },
-      tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } }
-  }});
-}
-
-function buildRevExp() {
-  destroyChart('revExp');
-  const ctx = document.getElementById('c-revExp');
-  if (!ctx) return;
-  CH.revExp = new Chart(ctx, { type:'line', data:{
-    labels:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
-    datasets:[
-      { label:'Revenue', data:[10939,10904,9093,13129,14000,15000,16000,17000,18000,19000,19500,20000], borderColor:C.forest, backgroundColor:C.forestA, fill:false, tension:.3, borderWidth:2.5, pointRadius:4, pointBackgroundColor:C.forest },
-      { label:'Operating Costs', data:[17254,13107,12404,12840,13000,13000,13200,13200,13400,13400,13600,13600], borderColor:C.coral, fill:false, tension:.3, borderWidth:2, borderDash:[5,3], pointRadius:3, pointBackgroundColor:C.coral }
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false}, ticks:{font:{size:10}} } }
-  }});
-}
-
-// ── ACTUALS CHARTS ──
-function buildVertBudget() {
-  destroyChart('vertBudget');
-  const ctx = document.getElementById('c-vertBudget');
-  if (!ctx) return;
-  CH.vertBudget = new Chart(ctx, { type:'bar', data:{
-    labels:['Reflect for Carbon','Reflect for Nature','C4C'],
-    datasets:[
-      { label:'YTD Budget', data:[33332,31500,39284], backgroundColor:C.forestA, borderColor:C.forest, borderWidth:1.5, borderRadius:3 },
-      { label:'YTD Actual', data:[33998,0,12520], backgroundColor:[C.forest,C.coral,C.amber], borderWidth:0, borderRadius:3 }
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false} } }
-  }});
-}
-
-function buildExpVar() {
-  destroyChart('expVar');
-  const ctx = document.getElementById('c-expVar');
-  if (!ctx) return;
-  const cats = ['Legal & Prof','Accountancy','Marketing','G&A','Platform','Payroll'];
-  const buds = [4608,1328,10132,4504,348,45852];
-  const acts = [875,285,5126,3206,261,45852];
-  const vars = acts.map((a,i) => +((a-buds[i])/buds[i]*100).toFixed(1));
-  CH.expVar = new Chart(ctx, { type:'bar', data:{
-    labels:cats,
-    datasets:[{ label:'Variance %', data:vars, backgroundColor:vars.map(v=>v<0?'rgba(45,138,78,0.7)':'rgba(238,92,95,0.7)'), borderRadius:4, borderWidth:0 }]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{display:false} },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>v+'%', font:{size:10} } }, x:{ grid:{display:false}, ticks:{font:{size:10}} } }
-  }});
-}
-
-function buildVTable() {
-  const rows = [
-    {sec:'REVENUE'},
-    {lbl:'Reflect for Carbon', bm:8333, acts:[8333,8333,8333,9999], yb:33332, ya:33998},
-    {lbl:'Reflect for Nature',  bm:0,    acts:[0,0,0,0],             yb:31500, ya:0, alert:true},
-    {lbl:'C4C',                 bm:9821, acts:[3130,3130,3130,3130],  yb:39284, ya:12520},
-    {tot:'TOTAL REVENUE', bm:18154, acts:[11463,11463,11463,13129], yb:104116, ya:46518},
-    {sec:'OPERATING EXPENSES'},
-    {lbl:'Legal & Professional', bm:1152, acts:[400,0,0,475],       yb:4608,  ya:875},
-    {lbl:'Accountancy',          bm:332,  acts:[42,81,81,81],        yb:1328,  ya:285},
-    {lbl:'Marketing & Sales',    bm:2533, acts:[3096,1030,500,500],  yb:10132, ya:5126},
-    {lbl:'G&A',                  bm:1126, acts:[2253,446,273,234],   yb:4504,  ya:3206},
-    {lbl:'Platform',             bm:87,   acts:[0,87,87,87],         yb:348,   ya:261},
-    {lbl:'Payroll',              bm:11463,acts:[11463,11463,11463,11463], yb:45852,ya:45852},
-    {tot:'TOTAL OPEX', bm:16693, acts:[17254,13107,12404,12840], yb:66772, ya:55344},
-  ];
-  const f = n => n===null?'—':'£'+Math.abs(n).toLocaleString();
-  const vc = v => v<0?'vp':v>5?'vn':'';
-  const tb = document.getElementById('vtBody');
-  tb.innerHTML = rows.map(r => {
-    if (r.sec) return `<tr class="sec-row"><td colspan="10">${r.sec}</td></tr>`;
-    const yv = ((r.ya-r.yb)/Math.max(r.yb,1)*100).toFixed(1);
-    const jv = r.acts[0]-r.bm;
-    if (r.tot) return `<tr class="tot-row"><td>${r.tot}</td><td>${f(r.bm)}</td><td>${f(r.acts[0])}</td><td>${f(jv)}</td><td>${f(r.acts[1])}</td><td>${f(r.acts[2])}</td><td>${f(r.acts[3])}</td><td>${f(r.yb)}</td><td>${f(r.ya)}</td><td>${yv}%</td></tr>`;
-    return `<tr><td>${r.lbl}${r.alert?' <span class="badge red" style="font-size:8px">Risk</span>':''}</td><td>${f(r.bm)}</td><td>${f(r.acts[0])}</td><td class="${vc(jv)}">${jv>=0?'+':''}${f(jv)}</td><td>${f(r.acts[1])}</td><td>${f(r.acts[2])}</td><td>${f(r.acts[3])}</td><td>${f(r.yb)}</td><td>${f(r.ya)}</td><td class="${vc(parseFloat(yv))}">${yv}%</td></tr>`;
-  }).join('');
-}
-
-// ── CASHFLOW CHART ──
-function buildCashflow() {
-  destroyChart('cashflow');
-  const ctx = document.getElementById('c-cashflow');
-  if (!ctx) return;
-  const labels = ['Apr 26','May 26','Jun 26','Jul 26','Aug 26','Sep 26','Oct 26','Nov 26','Dec 26','Jan 27','Feb 27','Mar 27','Apr 27'];
-  const total  = [28001,177251,173990,170729,167468,164207,160946,157685,154424,151163,147902,144641,141380];
-  const opOnly = [28001,25000,21740,18480,15500,13200,12000,11500,11200,11000,10800,10600,11000];
-  CH.cashflow = new Chart(ctx, { type:'line', data:{
-    labels,
-    datasets:[
-      { label:'Total Cash (incl Praetura)', data:total, borderColor:C.forest, backgroundColor:C.forestA, fill:true, tension:.3, borderWidth:2.5, pointRadius:4, pointBackgroundColor:C.forest },
-      { label:'Operating Cash Only', data:opOnly, borderColor:C.amber, fill:false, tension:.3, borderWidth:2, borderDash:[5,3], pointRadius:3 }
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } }, tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false}, ticks:{font:{size:10}} } }
-  }});
-}
-
-function updateVAT(val) {
-  document.getElementById('vatPctDisp').textContent = val+'%';
-  document.getElementById('cf-vatpct').textContent = val+'%';
-  const monthlyRev = 11493;
-  const qVat = Math.round(monthlyRev * (val/100) * 3 * 0.2);
-  document.getElementById('vatAmt').textContent = qVat.toLocaleString();
-  document.getElementById('cf-vat').textContent = qVat.toLocaleString();
-}
-
-// ── SCENARIO ENGINE ──
-function runScenario() {
-  const rs  = parseFloat(document.getElementById('sl-rs').value);
-  const rg  = parseFloat(document.getElementById('sl-rg').value);
-  const cg  = parseFloat(document.getElementById('sl-cg').value);
-  const inf = parseFloat(document.getElementById('sl-inf').value);
-
-  // Update labels
-  document.getElementById('lbl-rs').textContent  = rs+'%';
-  document.getElementById('lbl-rg').textContent  = rg+'%/yr';
-  document.getElementById('lbl-cg').textContent  = cg+'%/yr';
-  document.getElementById('lbl-inf').textContent = inf+'%';
-
-  // Calculate revenues using exact model logic
-  const revs = calcAllRevenues(rs, rg, cg);
-  // Adjust costs for inflation scenario
-  const infFactor = inf / 3.5;
-  const costs = MODEL.baseCosts.map((c,i) => Math.round(c * Math.pow(infFactor, i * 0.1)));
-  const ebitdas = revs.map((r,i) => r - costs[i] - MODEL.debtRepay[i]);
-
-  // Update impact panel
-  document.getElementById('imp-rev2026').textContent = '£'+(revs[0]/1000).toFixed(0)+'k';
-  document.getElementById('imp-rev2027').textContent = '£'+(revs[1]/1000).toFixed(0)+'k';
-  const e = ebitdas[0];
-  document.getElementById('imp-ebitda').textContent = (e>=0?'£':'-£')+(Math.abs(e)/1000).toFixed(0)+'k';
-  document.getElementById('imp-ebitda').className = 'imp-val '+(e>=0?'good':'bad');
-  const beYear = ebitdas.findIndex(e=>e>0);
-  document.getElementById('imp-be').textContent = beYear>=0 ? (2026+beYear).toString() : '2030+';
-
-  // Write back to Google Sheets if OAuth is active
-  if (accessToken) {
-    writeCell('Controls','E45', rs/100);
-    writeCell('Controls','E44', rg/100);
-    writeCell('Controls','E46', cg/100);
-    writeCell('Controls','E48', inf/100);
-  }
-
-  // Rebuild scenario charts
-  buildScenarioCharts(revs, ebitdas, rs, rg, cg, inf);
-}
-
-function buildScenarioCharts(revs, ebitdas, rs, rg, cg, inf) {
-  const years = ['2026','2027','2028','2029','2030'];
-
-  // Also calculate pessimistic and optimistic for comparison
-  const pessRevs = calcAllRevenues(15, 25, 25);
-  const optRevs  = calcAllRevenues(50, 100, 100);
-
-  destroyChart('scRev');
-  const ctx1 = document.getElementById('c-scRev');
-  if (!ctx1) return;
-  CH.scRev = new Chart(ctx1, { type:'line', data:{
-    labels: years,
-    datasets:[
-      { label:'Optimistic (50% share, 100% growth)', data:optRevs, borderColor:C.forest, fill:false, tension:.4, borderWidth:2, borderDash:[4,3], pointRadius:3 },
-      { label:'Current Scenario', data:revs, borderColor:C.amber, backgroundColor:C.amberA, fill:true, tension:.4, borderWidth:2.5, pointRadius:5, pointBackgroundColor:C.amber },
-      { label:'Pessimistic (15% share, 25% growth)', data:pessRevs, borderColor:C.coral, fill:false, tension:.4, borderWidth:2, borderDash:[3,3], pointRadius:3 },
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } }, tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>v>=1000000?'£'+(v/1000000).toFixed(1)+'M':'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false} } }
-  }});
-
-  destroyChart('scEbitda');
-  const ctx2 = document.getElementById('c-scEbitda');
-  if (!ctx2) return;
-  CH.scEbitda = new Chart(ctx2, { type:'bar', data:{
-    labels: years,
-    datasets:[{ label:'EBITDA (after debt repayments)', data:ebitdas, backgroundColor:ebitdas.map(v=>v>=0?'rgba(17,48,42,0.85)':'rgba(238,92,95,0.75)'), borderRadius:4, borderWidth:0 }]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } },
-    scales:{
-      y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>v>=0?'£'+(v/1000).toFixed(0)+'k':'-£'+(-v/1000).toFixed(0)+'k', font:{size:10} } },
-      x:{ grid:{display:false} }
-    }
-  }});
-}
-
-// ── INVESTOR CHARTS ──
-function build10Yr() {
-  destroyChart('10yr');
-  const ctx = document.getElementById('c-10yr');
-  if (!ctx) return;
-  const yrs = ['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'];
-  const revs = [248000,330000,432000,675000,1091000,1573000,2658000,4645000,8048000,14132000];
-  CH['10yr'] = new Chart(ctx, { type:'bar', data:{
-    labels:yrs,
-    datasets:[{ label:'Annual Revenue', data:revs, backgroundColor:yrs.map((_,i)=>i<2?C.amber:C.forest), borderRadius:4, borderWidth:0 }]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{display:false}, tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>v>=1000000?'£'+(v/1000000).toFixed(1)+'M':'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false} } }
-  }});
-}
-
-function buildRevCost() {
-  destroyChart('revCost');
-  const ctx = document.getElementById('c-revCost');
-  if (!ctx) return;
-  const yrs = ['2026','2027','2028','2029','2030','2031','2032','2033','2034','2035'];
-  const revs = [248000,330000,432000,675000,1091000,1573000,2658000,4645000,8048000,14132000];
-  const costs= [234000,270000,359000,373000,387000,422000,492000,542000,612000,692000];
-  CH.revCost = new Chart(ctx, { type:'line', data:{
-    labels:yrs,
-    datasets:[
-      { label:'Revenue', data:revs, borderColor:C.forest, backgroundColor:C.forestA, fill:true, tension:.4, borderWidth:2.5, pointRadius:4 },
-      { label:'Total Costs', data:costs, borderColor:C.coral, fill:false, tension:.4, borderWidth:2, borderDash:[5,3], pointRadius:3 }
-    ]
-  }, options:{ responsive:true, maintainAspectRatio:false,
-    plugins:{ legend:{ position:'top', labels:{ boxWidth:10, font:{size:10} } }, tooltip:{ callbacks:{ label:ctx=>' £'+ctx.raw.toLocaleString() } } },
-    scales:{ y:{ grid:{color:'rgba(0,0,0,0.05)'}, ticks:{ callback:v=>v>=1000000?'£'+(v/1000000).toFixed(1)+'M':'£'+(v/1000).toFixed(0)+'k', font:{size:10} } }, x:{ grid:{display:false} } }
-  }});
-}
-
-// ── GOOGLE SHEETS SYNC ──
-async function syncData() {
-  if (!CFG.apiKey && !accessToken) { document.getElementById('configModal').classList.add('show'); return; }
-  ensureFreshToken();
-  const btn = document.getElementById('syncBtn');
-  btn.textContent = '↻ Syncing...';
-  document.getElementById('loadingBg').classList.add('show');
-  try {
-    // Read Controls scenario rows
-    const ctrl = await gsFetch('Controls','E44:E48');
-    if (ctrl?.values) {
-      const v = ctrl.values;
-      if (v[0]?.[0]) document.getElementById('sl-rg').value = parseFloat(v[0][0])*100;
-      if (v[1]?.[0]) document.getElementById('sl-rs').value = parseFloat(v[1][0])*100;
-      if (v[2]?.[0]) document.getElementById('sl-cg').value = parseFloat(v[2][0])*100;
-      if (v[4]?.[0]) document.getElementById('sl-inf').value = parseFloat(v[4][0])*100;
-    }
-    document.getElementById('srcLabel').textContent = 'live Google Sheets data';
-    document.getElementById('lastSync').textContent = new Date().toLocaleTimeString('en-GB');
-    runScenario();
-    buildChartsForTab('overview');
-  } catch(e) {
-    console.error(e);
-    document.getElementById('srcLabel').textContent = 'demo data (sync failed)';
-  }
-  document.getElementById('loadingBg').classList.remove('show');
-  btn.textContent = '↻ Sync';
-}
-
-async function gsFetch(sheet, range) {
-  let url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${range}`;
+async function gsBatchGet() {
+  const params = new URLSearchParams();
+  RANGE_KEYS.forEach(k => params.append('ranges', RANGES[k]));
+  params.append('valueRenderOption', 'UNFORMATTED_VALUE');
+  let url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values:batchGet?${params.toString()}`;
   const opts = {};
-  if (accessToken) {
-    opts.headers = { 'Authorization': `Bearer ${accessToken}` };
-  } else {
-    url += `?key=${CFG.apiKey}`;
-  }
-  const r = await fetch(url, opts);
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
+  if (accessToken) opts.headers = { Authorization: `Bearer ${accessToken}` };
+  else url += `&key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error('Sheets API error ' + res.status);
+  const json = await res.json();
+  const out = {};
+  json.valueRanges.forEach((vr, i) => { out[RANGE_KEYS[i]] = vr.values || []; });
+  return out;
 }
 
 async function writeCell(sheet, cell, value) {
-  if (!accessToken) return; // write requires OAuth
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${CFG.sheetId}/values/${encodeURIComponent(sheet)}!${cell}?valueInputOption=RAW`;
-  await fetch(url, {
+  if (!accessToken) return false;
+  const range = `${sheet}!${cell}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${encodeURIComponent(sheetId)}/values/${encodeURIComponent(range)}?valueInputOption=RAW`;
+  const res = await fetch(url, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${accessToken}` },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
     body: JSON.stringify({ values: [[value]] })
   });
+  return res.ok;
+}
+
+// ── PARSE HELPERS ──
+function num(v) { if (v === undefined || v === null || v === '' || v === '-') return 0; const n = typeof v === 'number' ? v : parseFloat(String(v).replace(/[£,%\s]/g, '')); return isNaN(n) ? 0 : n; }
+function numOrNull(v) { if (v === undefined || v === null || v === '') return null; return num(v); }
+function findRowExact(rows, label) { return rows.find(r => (r[0] || '').toString().trim() === label) || []; }
+function findRowLike(rows, needle) { const n = needle.toLowerCase(); return rows.find(r => (r[0] || '').toString().toLowerCase().includes(n)) || []; }
+function rowVals(row, startIdx, endIdxIncl) { const out = []; for (let i = startIdx; i <= endIdxIncl; i++) out.push(num(row[i])); return out; }
+const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+// ── BUILD MODEL FROM LIVE SHEET DATA ──
+function buildModelFromSheet(raw) {
+  const m = { source: 'live' };
+
+  // Scenario drivers (Controls!E46:E50)
+  const sc = raw.scenario;
+  m.scenario = {
+    reflectGrowth: num(sc[0] && sc[0][0]),
+    revShare:      num(sc[1] && sc[1][0]),
+    c4cGrowth:     num(sc[2] && sc[2][0]),
+    inflation:     num(sc[4] && sc[4][0]),
+  };
+
+  // Pipeline 2026 targets (Controls!A14:E42, offset = row-14)
+  const pt = raw.pipelineTargets;
+  const tgt = (row) => num((pt[row - 14] || [])[4]);
+  const pipelineTargets = { carbon: tgt(14), cbo: tgt(18), midNGO: tgt(22), largeNGO: tgt(26), impact: tgt(30), c4cSupported: tgt(38), c4cSelf: tgt(42) };
+
+  // Pipeline closed counts (Controls!A140:E146 — new block, defaults to 0 if not yet added to the sheet)
+  const pc = raw.pipelineClosed;
+  const closed = (row) => num((pc[row - 140] || [])[4]);
+  const pipelineClosed = { carbon: closed(140), cbo: closed(141), midNGO: closed(142), largeNGO: closed(143), impact: closed(144), c4cSupported: closed(145), c4cSelf: closed(146) };
+
+  m.pipeline = {
+    reflect: [
+      { label: 'Carbon Developer', target: pipelineTargets.carbon, closed: pipelineClosed.carbon, value: '£7,900/yr', color: '#CD8028', ctrlRow: 140 },
+      { label: 'Conservation CBO', target: pipelineTargets.cbo, closed: pipelineClosed.cbo, value: '£4,700/yr', color: '#e09040', ctrlRow: 141 },
+      { label: 'Mid-sized NGO', target: pipelineTargets.midNGO, closed: pipelineClosed.midNGO, value: '£20,000/yr', color: '#858755', ctrlRow: 142 },
+      { label: 'Large NGO', target: pipelineTargets.largeNGO, closed: pipelineClosed.largeNGO, value: '£39,400/yr', color: '#511433', ctrlRow: 143 },
+      { label: 'Impact Investor', target: pipelineTargets.impact, closed: pipelineClosed.impact, value: '£39,400/yr', color: '#11302A', note: 'Target from 2027', ctrlRow: 144 },
+    ],
+    c4c: [
+      { label: 'Supported', target: pipelineTargets.c4cSupported, closed: pipelineClosed.c4cSupported, value: '£26,125/yr', color: '#11302A', ctrlRow: 145 },
+      { label: 'Self-Service', target: pipelineTargets.c4cSelf, closed: pipelineClosed.c4cSelf, value: '£6,866/yr', color: '#1a4a40', ctrlRow: 146 },
+    ],
+  };
+
+  // ── Budget vs Actual 2026 ──
+  const bva = raw.bva;
+  const revCarbon = findRowExact(bva, 'Reflect for Carbon');
+  const revNature = findRowExact(bva, 'Reflect for Nature');
+  const revC4C = findRowExact(bva, 'C4C');
+  const revTotal = findRowExact(bva, 'TOTAL REVENUE');
+  const cogsRow = findRowExact(bva, 'TOTAL DIRECT EXPENSES');
+  const opexRow = findRowExact(bva, 'TOTAL OPERATING EXPENSES');
+  const ebitdaRow = findRowExact(bva, 'EBITDA');
+  const closeCashRow = findRowExact(bva, 'Closing Cash Balance');
+
+  const monthBudget = (row, i) => numOrNull(row[1 + 4 * i]);
+  const monthActual = (row, i) => numOrNull(row[1 + 4 * i + 1]);
+  const ytdActual = (row) => num(row[50]);
+  const ytdBudgetToDate = (row, uptoIdx) => { let s = 0; for (let i = 0; i <= uptoIdx; i++) { const v = monthBudget(row, i); if (v !== null) s += v; } return s; };
+
+  // "TOTAL REVENUE"/"EBITDA" are formulas that evaluate to 0 (not blank) for months with no
+  // actuals yet, so blank-detection on them is unreliable. Use a raw, manually-entered line
+  // item (Reflect for Carbon) to find the true latest reported month instead.
+  let latestIdx = -1;
+  [...Array(12)].forEach((_, i) => { if (monthActual(revCarbon, i) !== null) latestIdx = i; });
+  if (latestIdx < 0) latestIdx = 0;
+
+  const revActualMonths = [...Array(12)].map((_, i) => i <= latestIdx ? monthActual(revTotal, i) : null);
+  const revBudgetMonths = [...Array(12)].map((_, i) => monthBudget(revTotal, i));
+  const ebitdaActualMonths = [...Array(12)].map((_, i) => i <= latestIdx ? monthActual(ebitdaRow, i) : null);
+  const costActualMonths = [...Array(12)].map((_, i) => {
+    if (i > latestIdx) return null;
+    const c = monthActual(cogsRow, i), o = monthActual(opexRow, i);
+    return (c === null || o === null) ? null : c + o;
+  });
+  const closeCashMonths = [...Array(12)].map((_, i) => monthActual(closeCashRow, i));
+
+  let latestCashIdx = -1, latestCash = null;
+  closeCashMonths.forEach((v, i) => { if (v !== null) { latestCashIdx = i; latestCash = v; } });
+
+  m.latestIdx = latestIdx;
+  m.latestMonthLabel = MONTH_NAMES[latestIdx];
+
+  m.kpis = {
+    revActual: revActualMonths[latestIdx] || 0,
+    revBudget: revBudgetMonths[latestIdx] || 0,
+    cash: latestCash,
+    cashMonthLabel: latestCashIdx >= 0 ? MONTH_NAMES[latestCashIdx] : '—',
+    burn: ebitdaActualMonths[latestIdx] || 0,
+    // Not using the sheet's own YTD-Actual cell here: it's a formula that keeps accreting
+    // "actual" payroll/opex for months that haven't happened yet (those cost rows mirror
+    // budget regardless of Xero import status), so it silently overstates the YTD loss.
+    // Summing our own latestIdx-masked monthly actuals avoids that.
+    ebitdaYtd: ebitdaActualMonths.filter(v => v !== null).reduce((s, v) => s + v, 0),
+  };
+
+  m.runway = {
+    cashActuals: closeCashMonths,
+    ebitdaActuals: ebitdaActualMonths,
+    praeturaDrawn: latestCashIdx >= 4, // Praetura draws down May 2026 (index 4) — before that, cash figure excludes it
+    praeturaNet: 149250,
+    startYear: 2026,
+    startMonth: 0,
+  };
+
+  m.verticalHealth = [
+    (() => {
+      const a = ytdActual(revCarbon), b = ytdBudgetToDate(revCarbon, latestIdx);
+      const pct = b ? ((a - b) / b * 100) : 0;
+      return { label: 'Reflect — YTD actual vs projection', sub: `£${a.toLocaleString()} actual vs £${Math.round(b).toLocaleString()} projected · Fixed fee on track · Revenue share starts Aug 2026`, dot: pct >= 0 ? 'green' : 'red', value: `${pct >= 0 ? '+' : ''}${pct.toFixed(0)}%`, valueClass: pct >= 0 ? 'pos' : 'neg' };
+    })(),
+    (() => {
+      const a = ytdActual(revC4C), b = ytdBudgetToDate(revC4C, latestIdx);
+      const pct = b ? ((a - b) / b * 100) : 0;
+      return { label: 'C4C — YTD actual vs projection', sub: `£${a.toLocaleString()} actual vs £${Math.round(b).toLocaleString()} projected · Intercompany only invoicing · Direct sales pipeline building`, dot: pct >= 0 ? 'green' : 'red', value: `${pct >= 0 ? '+' : ''}${pct.toFixed(0)}%`, valueClass: pct >= 0 ? 'pos' : 'neg' };
+    })(),
+    (() => {
+      const a = ytdActual(revNature), b = ytdBudgetToDate(revNature, latestIdx);
+      const isRisk = a === 0 && b > 0;
+      return { label: 'Reflect for Nature — actual vs projection', sub: `£${a.toLocaleString()} actual vs £${Math.round(b).toLocaleString()} projected · SaaS pricing not yet finalised with Level`, dot: 'red', value: isRisk ? 'KEY RISK' : `${((a - b) / b * 100).toFixed(0)}%`, valueClass: 'neg' };
+    })(),
+  ];
+
+  m.obligations = { praeturaMonthly: 3261 };
+
+  m.revBar = {
+    months: ['J','F','M','A','M','J','J','A','S','O','N','D'],
+    revActual: revActualMonths,
+    costActual: costActualMonths,
+  };
+
+  m.actuals = {
+    latestIdx,
+    rows: [
+      { label: 'Reflect for Carbon', row: revCarbon },
+      { label: 'Reflect for Nature', row: revNature },
+      { label: 'C4C', row: revC4C },
+      { label: 'Total Revenue', row: revTotal, isTotal: true },
+      { label: 'EBITDA', row: ebitdaRow, isTotal: true },
+    ].map(r => {
+      const monthly = [...Array(latestIdx + 1)].map((_, i) => monthActual(r.row, i));
+      // Sum our own masked monthly actuals rather than trusting the sheet's YTD-Actual cell —
+      // see note on m.kpis.ebitdaYtd above (formula rows overstate YTD for future months).
+      const ytdAct = monthly.reduce((s, v) => s + (v || 0), 0);
+      return { label: r.label, isTotal: r.isTotal, monthly, ytdProj: ytdBudgetToDate(r.row, latestIdx), ytdActual: ytdAct };
+    }),
+  };
+
+  // ── Annual PL (2026–2030 = cols E:I, idx4..8) ──
+  const apl = raw.annualPL;
+  const aplRow = (needle) => findRowLike(apl, needle);
+  const aplExact = (label) => findRowExact(apl, label);
+  m.annualPL = {
+    years: [2026, 2027, 2028, 2029, 2030],
+    totalRevenue: rowVals(aplRow('total revenue from operations'), 4, 8),
+    reflectFixed: rowVals(aplRow('reflect (fixed fee)'), 4, 8),
+    reflectCarbon: rowVals(aplRow('carbon project developer'), 4, 8),
+    reflectCbo: rowVals(aplRow('conservation cbo'), 4, 8),
+    reflectMidNGO: rowVals(aplRow('mid-sized conservation ngo'), 4, 8),
+    reflectLargeNGO: rowVals(aplRow('large ngo'), 4, 8),
+    reflectImpact: rowVals(aplRow('impact investor'), 4, 8),
+    c4cIntercompany: rowVals(aplRow('intercompany'), 4, 8),
+    c4cSupported: rowVals(aplRow('direct sales (supported)'), 4, 8),
+    c4cSelf: rowVals(aplRow('direct sales (self-service)'), 4, 8),
+    c4cRenewals: rowVals(aplRow('c4c renewals'), 4, 8),
+    cogs: rowVals(aplRow('total direct expenses'), 4, 8),
+    grossProfit: rowVals(aplExact('Gross Profit'), 4, 8),
+    grossMarginPct: rowVals(aplRow('gross margin%'), 4, 8).map(v => v * 100),
+    opex: rowVals(aplRow('total operating expense'), 4, 8),
+    payroll: rowVals(aplRow('payroll expenses'), 4, 8),
+    ebitda: rowVals(aplExact('EBITDA'), 4, 8),
+    ebitdaMarginPct: rowVals(aplRow('ebitda margin%'), 4, 8).map(v => v * 100),
+    debtRepay: rowVals(aplRow('total monthly debt repayments'), 4, 8),
+    ebt: rowVals(aplExact('EBT'), 4, 8),
+    tax: rowVals(aplRow('corporation tax'), 4, 8),
+    pat: rowVals(aplExact('PAT'), 4, 8),
+  };
+
+  // 2026 revenue mix donut (Annual PL col E, idx4)
+  const e = (arr) => arr[0] || 0;
+  m.donut = [
+    { label: 'Reflect Fixed Fee', value: e(m.annualPL.reflectFixed), color: '#CD8028' },
+    { label: 'Reflect Rev Share', value: e(m.annualPL.reflectCarbon) + e(m.annualPL.reflectCbo) + e(m.annualPL.reflectMidNGO) + e(m.annualPL.reflectLargeNGO) + e(m.annualPL.reflectImpact), color: '#e09040' },
+    { label: 'C4C Supported', value: e(m.annualPL.c4cSupported), color: '#11302A' },
+    { label: 'C4C Self-Service', value: e(m.annualPL.c4cSelf), color: '#1a4a40' },
+    { label: 'C4C Intercompany', value: e(m.annualPL.c4cIntercompany), color: '#858755' },
+  ];
+
+  m.miniTraj = {
+    years: m.annualPL.years,
+    reflect: m.annualPL.reflectFixed.map((v, i) => v + m.annualPL.reflectCarbon[i] + m.annualPL.reflectCbo[i] + m.annualPL.reflectMidNGO[i] + m.annualPL.reflectLargeNGO[i] + m.annualPL.reflectImpact[i]),
+    c4c: m.annualPL.c4cIntercompany.map((v, i) => v + m.annualPL.c4cSupported[i] + m.annualPL.c4cSelf[i] + m.annualPL.c4cRenewals[i]),
+    total: m.annualPL.totalRevenue,
+  };
+
+  // May–Dec 2026 revenue/cost projection = remaining-year annual total minus YTD actual, spread over remaining months
+  const remMonths = 12 - (latestIdx + 1);
+  const ytdRevActual = revActualMonths.filter(v => v !== null).reduce((s, v) => s + v, 0);
+  const ytdCostActual = costActualMonths.filter(v => v !== null).reduce((s, v) => s + v, 0);
+  const remRevPerMonth = remMonths ? Math.max(0, m.annualPL.totalRevenue[0] - ytdRevActual) / remMonths : 0;
+  const remCostPerMonth = remMonths ? Math.max(0, (m.annualPL.cogs[0] + m.annualPL.opex[0]) - ytdCostActual) / remMonths : 0;
+  m.revBar.revProj = [...Array(12)].map((_, i) => i > latestIdx ? remRevPerMonth : null);
+  m.revBar.costProj = [...Array(12)].map((_, i) => i > latestIdx ? remCostPerMonth : costActualMonths[i]);
+
+  // ── Debt Overview ──
+  const dov = raw.debtOverview;
+  const dovRow = (needle) => findRowLike(dov, needle);
+  const dovExact = (label) => findRowExact(dov, label);
+  m.debt = {
+    yearsFull: [2026, 2027, 2028, 2029, 2030, 2031],
+    repayments: rowVals(dovRow('annual debt repayments'), 2, 7),
+    interest: rowVals(dovRow('annual interest paid'), 2, 7),
+    principal: rowVals(dovRow('annual principal repaid'), 2, 7),
+    closingLoanBalance: rowVals(dovRow('closing loan balance'), 2, 7),
+    dscrYears: [2026, 2027, 2028, 2029, 2030],
+    dscr: rowVals(dovExact('DSCR'), 2, 6),
+    dscrFull: rowVals(dovExact('DSCR'), 2, 7), // 2026–2031, for the 6-year debt schedule table
+    dscrStatus: [2, 3, 4, 5, 6].map(i => (dovExact('DSCR Status')[i] || '').toString()),
+    headroomYears: [2028, 2029, 2030],
+    headroom: rowVals(dovRow('max additional annual debt service'), 4, 6),
+    directorLoanClosing: num(dovExact('Closing Balance')[2]),
+  };
+  m.debt.ebitdaFull = rowVals(aplExact('EBITDA'), 4, 9); // 2026–2031
+
+  // ── VAT tracker ──
+  const vat = raw.vatTracker;
+  const vatRate = num((findRowLike(vat, 'vat rate')[2]));
+  const vatAblePct = num((findRowLike(vat, '% of revenue vat-able')[2]));
+  const effRate = num((findRowLike(vat, 'effective vat rate')[2])) || (vatRate * vatAblePct);
+  const monthRows = vat.slice(7, 19); // rows 33–44
+  const quarters = monthRows.filter(r => (r[4] || '').toString().trim().toUpperCase() === 'YES').map(r => ({ date: r[5], amount: num(r[6]) }));
+  let reserveNowIdx = -1;
+  monthRows.forEach((r, i) => { if (r[1] !== undefined && r[1] !== '') reserveNowIdx = i; });
+  const reserveNow = reserveNowIdx >= 0 ? num(monthRows[reserveNowIdx][3]) : 0;
+  const today = new Date();
+  let nextQuarter = quarters.find(q => new Date(q.date) >= today) || quarters[quarters.length - 1] || null;
+  m.vat = { vatRate, vatAblePct, effRate, quarters, reserveNow, nextQuarter };
+
+  // ── Investor view derived metrics ──
+  const rev = m.annualPL.totalRevenue, ebitda = m.annualPL.ebitda, gm = m.annualPL.grossMarginPct;
+  const beIdx = ebitda.findIndex(v => v > 0);
+  m.investor = {
+    rev2026: rev[0],
+    growthPct: rev[1] ? ((rev[2] - rev[1]) / Math.abs(rev[1]) * 100) : 0,
+    growthFrom: rev[1], growthTo: rev[2],
+    gmYear: 2028, gmPct: gm[2],
+    beYear: beIdx >= 0 ? m.annualPL.years[beIdx] : null,
+    beValue: beIdx >= 0 ? ebitda[beIdx] : null,
+    ebitda2030: ebitda[4],
+    ebitdaMargin2030: m.annualPL.ebitdaMarginPct[4],
+  };
+
+  return m;
+}
+
+// ── DEMO MODEL (fallback shown before a sheet is connected) ──
+function getDemoModel() {
+  return {
+    source: 'demo',
+    scenario: { reflectGrowth: 0.5, revShare: 0.4, c4cGrowth: 0.5, inflation: 0.035 },
+    latestIdx: 3, latestMonthLabel: 'Apr',
+    kpis: { revActual: 13129, revBudget: 29178, cash: 28001, cashMonthLabel: 'Feb', burn: -5711, ebitdaYtd: -18839 },
+    runway: { cashActuals: [11879, 28001, 28001, null], ebitdaActuals: [-8479, -4332, -3629, -2399], praeturaDrawn: false, praeturaNet: 149250, startYear: 2026, startMonth: 0 },
+    verticalHealth: [
+      { label: 'Reflect — YTD actual vs projection', sub: '£34,998 actual vs £33,332 projected · Fixed fee on track · Revenue share starts Aug 2026', dot: 'green', value: '+5%', valueClass: 'pos' },
+      { label: 'C4C — YTD actual vs projection', sub: '£12,520 actual vs £40,380 projected · Intercompany only invoicing · Direct sales pipeline building', dot: 'red', value: '−69%', valueClass: 'neg' },
+      { label: 'Reflect for Nature — actual vs projection', sub: '£0 actual vs £31,500 projected · SaaS pricing not yet finalised with Level', dot: 'red', value: 'KEY RISK', valueClass: 'neg' },
+    ],
+    obligations: { praeturaMonthly: 3261 },
+    revBar: { months: ['J','F','M','A','M','J','J','A','S','O','N','D'], revActual: [11463,11463,11463,13129,null,null,null,null,null,null,null,null], revProj: [null,null,null,null,22708,22708,22708,14375,14375,14375,14375,14375], costActual: [19942,15795,15092,15528,null,null,null,null,null,null,null,null], costProj: [null,null,null,null,21886,25147,25147,25147,25147,25147,25147,25147] },
+    actuals: { latestIdx: 3, rows: [
+      { label: 'Reflect for Carbon', isTotal: false, monthly: [8333,8333,8333,9999], ytdProj: 33332, ytdActual: 34998 },
+      { label: 'Reflect for Nature', isTotal: false, monthly: [0,0,0,0], ytdProj: 31500, ytdActual: 0 },
+      { label: 'C4C', isTotal: false, monthly: [3130,3130,3130,3130], ytdProj: 40380, ytdActual: 12520 },
+      { label: 'Total Revenue', isTotal: true, monthly: [11463,11463,11463,13129], ytdProj: 105212, ytdActual: 47518 },
+      { label: 'EBITDA', isTotal: true, monthly: [-8479,-4332,-3629,-2399], ytdProj: -55824, ytdActual: -18839 },
+    ] },
+    pipeline: {
+      reflect: [
+        { label: 'Carbon Developer', target: 6, closed: 0, value: '£7,900/yr', color: '#CD8028', ctrlRow: 140 },
+        { label: 'Conservation CBO', target: 3, closed: 0, value: '£4,700/yr', color: '#e09040', ctrlRow: 141 },
+        { label: 'Mid-sized NGO', target: 1, closed: 0, value: '£20,000/yr', color: '#858755', ctrlRow: 142 },
+        { label: 'Large NGO', target: 1, closed: 0, value: '£39,400/yr', color: '#511433', ctrlRow: 143 },
+        { label: 'Impact Investor', target: 0, closed: 0, value: '£39,400/yr', color: '#11302A', note: 'Target from 2027', ctrlRow: 144 },
+      ],
+      c4c: [
+        { label: 'Supported', target: 2, closed: 0, value: '£26,125/yr', color: '#11302A', ctrlRow: 145 },
+        { label: 'Self-Service', target: 5, closed: 0, value: '£6,866/yr', color: '#1a4a40', ctrlRow: 146 },
+      ],
+    },
+    donut: [
+      { label: 'Reflect Fixed Fee', value: 66664, color: '#CD8028' },
+      { label: 'Reflect Rev Share', value: 48360, color: '#e09040' },
+      { label: 'C4C Supported', value: 52250, color: '#11302A' },
+      { label: 'C4C Self-Service', value: 34330, color: '#1a4a40' },
+      { label: 'C4C Intercompany', value: 37036, color: '#858755' },
+    ],
+    miniTraj: { years: [2026,2027,2028,2029,2030], reflect: [114160,100280,152680,234320,371880], c4c: [123616,172278,267945,421846,636202], total: [238640,273298,420625,656166,1008082] },
+    annualPL: {
+      years: [2026,2027,2028,2029,2030],
+      totalRevenue: [238640,273298,420625,656166,1008082],
+      cogs: [36118,55710,40164,54893,76629],
+      grossProfit: [202522,217588,380461,601273,931453],
+      grossMarginPct: [84.9,79.6,90.5,91.6,92.4],
+      opex: [240483,267017,268935,339355,356950],
+      payroll: [184316,212487,207565,279213,289060],
+      ebitda: [-37961,-49429,111526,261918,574503],
+      ebitdaMarginPct: [-15.9,-18.1,26.5,39.9,57.0],
+      debtRepay: [22830,39136,75136,48806,39136],
+      ebt: [-60791,-88566,36390,213113,535367],
+      tax: [0,0,6914,40491,101720],
+      pat: [-60791,-88566,29476,172621,433647],
+    },
+    debt: {
+      yearsFull: [2026,2027,2028,2029,2030,2031],
+      repayments: [-22830,-39136,-75136,-48806,-39136,-19568],
+      interest: [-9927,-12567,-9493,-6063,-2235,0],
+      principal: [-22830,-26091,-75136,-48806,-39136,-19568],
+      closingLoanBalance: [183562,158348,94215,53159,18139,0],
+      dscrYears: [2026,2027,2028,2029,2030],
+      dscr: [-1.66,-1.26,1.48,5.37,14.68],
+      dscrStatus: ['✗ Below 1x','✗ Below 1x','✓ Strong','✓ Strong','✓ Strong'],
+      dscrFull: [-1.66,-1.26,1.48,5.37,14.68,53.01],
+      headroomYears: [2028,2029,2030],
+      headroom: [14085,160729,420466],
+      directorLoanClosing: 45669,
+      ebitdaFull: [-37961,-49429,111526,261918,574503,1037338],
+    },
+    vat: { vatRate: 0.2, vatAblePct: 0.75, effRate: 0.15, quarters: [{date:'2026-04-07',amount:5147},{date:'2026-07-07',amount:5147},{date:'2026-10-07',amount:3253},{date:'2027-01-07',amount:3253}], reserveNow: 5147, nextQuarter: {date:'2026-07-07',amount:5147} },
+    investor: { rev2026: 238640, growthPct: 54, growthFrom: 273298, growthTo: 420625, gmYear: 2028, gmPct: 90.5, beYear: 2028, beValue: 111526, ebitda2030: 574503, ebitdaMargin2030: 57.0 },
+  };
+}
+
+let MODEL = getDemoModel();
+
+async function syncData() {
+  if (!apiKey && !accessToken) { openConfig(); return; }
+  ensureFreshToken();
+  const btn = document.getElementById('syncBtn');
+  btn.textContent = '↻ Syncing…';
+  document.getElementById('syncText').textContent = 'Syncing…';
+  try {
+    const raw = await gsBatchGet();
+    MODEL = buildModelFromSheet(raw);
+    document.getElementById('syncText').textContent = 'Live · ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('syncDot').className = 'sync-dot live';
+    renderAll();
+  } catch (e) {
+    console.error(e);
+    document.getElementById('syncText').textContent = 'Sync failed — showing demo data';
+    document.getElementById('syncDot').className = 'sync-dot';
+  }
+  btn.textContent = '↻ Sync';
+}
+
+// ── RUNWAY CALCULATION ──
+function calculateRunway(params) {
+  const {
+    cashActuals,       // array of monthly closing cash actuals [jan, feb, mar, apr, ...]
+    ebitdaActuals,     // array of monthly EBITDA actuals
+    praeturaDrawn,     // boolean — has Praetura been drawn yet
+    praeturaNet,       // net Praetura proceeds (£149,250)
+    startYear,         // year of first actual (2026)
+    startMonth,        // 0-indexed month of first actual (0 = Jan)
+  } = params;
+
+  // Most recent non-null closing cash
+  let latestCash = null, latestMonthIdx = -1;
+  cashActuals.forEach((v, i) => { if (v !== null && v !== undefined) { latestCash = v; latestMonthIdx = i; } });
+
+  // Average monthly burn from EBITDA actuals
+  const burns = ebitdaActuals.filter(v => v !== null && v !== undefined);
+  const avgBurn = burns.length ? burns.reduce((s, v) => s + v, 0) / burns.length : null;
+
+  // Total available cash
+  const totalCash = latestCash !== null
+    ? latestCash + (praeturaDrawn ? 0 : praeturaNet)
+    : null;
+
+  if (totalCash === null || avgBurn === null) {
+    document.getElementById('kpi-runway-date').textContent = '—';
+    document.getElementById('kpi-runway-sub').textContent = 'Connect Google Sheets for live data';
+    return;
+  }
+
+  if (avgBurn >= 0) {
+    // Profitable — no cash-out risk
+    document.getElementById('kpi-runway-date').textContent = 'Profitable';
+    document.getElementById('kpi-runway-sub').textContent = 'Generating cash at current run rate';
+    document.getElementById('kpi-runway-sub').className = 'kpi-sub pos';
+    return;
+  }
+
+  const monthsRunway = Math.round(totalCash / Math.abs(avgBurn));
+
+  // Calculate calendar date of cash-out
+  const refDate = new Date(startYear, startMonth + latestMonthIdx + 1, 1);
+  const cashOutDate = new Date(refDate);
+  cashOutDate.setMonth(cashOutDate.getMonth() + monthsRunway);
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const cashOutStr = `${monthNames[cashOutDate.getMonth()]} ${cashOutDate.getFullYear()}`;
+
+  // Update KPI card
+  document.getElementById('kpi-runway-date').textContent = cashOutStr;
+  const subEl = document.getElementById('kpi-runway-sub');
+  subEl.textContent = `~${monthsRunway} months · £${Math.round(totalCash).toLocaleString()} available`;
+  subEl.className = 'kpi-sub ' + (monthsRunway > 24 ? 'pos' : monthsRunway > 12 ? 'warn' : 'neg');
+
+  // Update timeline cash-out label and marker position
+  const labelEl = document.getElementById('cashout-label');
+  if (labelEl) labelEl.textContent = cashOutStr + '*';
+
+  // Timeline: Jul 2026 → Jun 2031 = 60 months total
+  const tlStart = new Date(2026, 6, 1);
+  const tlMonths = 60;
+  const monthsFromTlStart = (cashOutDate.getFullYear() - tlStart.getFullYear()) * 12
+    + (cashOutDate.getMonth() - tlStart.getMonth());
+  const pct = Math.min(96, Math.max(4, (monthsFromTlStart / tlMonths) * 100));
+  const marker = document.getElementById('cashout-marker');
+  if (marker) marker.style.left = pct + '%';
+}
+
+// ── FORMAT HELPERS ──
+function fmtGBP(v) { const r = Math.round(v); return (r < 0 ? '−£' + Math.abs(r).toLocaleString() : '£' + r.toLocaleString()); }
+function fmtGBPk(v) { return Math.abs(v) >= 1000000 ? `£${(v/1000000).toFixed(1)}M` : `£${Math.round(v/1000)}k`; }
+function fmtParen(v) { const r = Math.round(v); return r < 0 ? `(£${Math.abs(r).toLocaleString()})` : `£${r.toLocaleString()}`; }
+function fmtPct(v, dp) { dp = dp === undefined ? 1 : dp; return `${v >= 0 ? '' : ''}${v.toFixed(dp)}%`; }
+
+// ── KPIs (Overview) ──
+function renderKPIs(m) {
+  document.getElementById('kpi-period-label').textContent = `${m.latestMonthLabel} 2026 (latest actuals)`;
+  document.getElementById('kpi-rev-actual').textContent = fmtGBP(m.kpis.revActual);
+  const revDiff = m.kpis.revActual - m.kpis.revBudget;
+  const revSub = document.getElementById('kpi-rev-sub');
+  revSub.textContent = `${revDiff >= 0 ? '+' : '−'}${fmtGBP(Math.abs(revDiff))} vs ${fmtGBP(m.kpis.revBudget)} budget`;
+  revSub.className = 'kpi-sub ' + (revDiff >= 0 ? 'pos' : 'neg');
+
+  document.getElementById('kpi-cash').textContent = m.kpis.cash !== null ? fmtGBP(m.kpis.cash) : '—';
+  document.getElementById('kpi-cash-sub').textContent = m.runway.praeturaDrawn ? '+ £149,250 Praetura (drawn)' : '+ £149,250 Praetura incoming';
+
+  document.getElementById('kpi-burn').textContent = fmtGBP(m.kpis.burn);
+  document.getElementById('kpi-burn-sub').textContent = `${m.latestMonthLabel} 2026 EBITDA`;
+
+  document.getElementById('kpi-ebitda-ytd').textContent = fmtGBP(m.kpis.ebitdaYtd);
+  document.getElementById('kpi-ebitda-ytd-sub').textContent = `Jan–${m.latestMonthLabel} 2026 actuals`;
+
+  if (m.vat) {
+    document.getElementById('kpi-vat').textContent = fmtGBP(m.vat.reserveNow);
+    const nq = m.vat.nextQuarter;
+    document.getElementById('kpi-vat-sub').textContent = nq ? `Next due ${nq.date} · ~${fmtGBP(nq.amount)}` : 'No upcoming quarter data';
+  }
+}
+
+// ── Vertical Health + Obligations ──
+function renderVerticalHealth(m) {
+  const items = m.verticalHealth.slice();
+  if (m.debt && m.debt.dscr && m.debt.dscr.length > 2) {
+    items.push({ label: 'DSCR 2028 (first positive year)', sub: 'Includes Praetura + Director Loan repayment', dot: m.debt.dscr[2] >= 1.25 ? 'green' : 'amber', value: `${m.debt.dscr[2].toFixed(2)}x ${m.debt.dscr[2] >= 1.25 ? '✓' : ''}`, valueClass: m.debt.dscr[2] >= 1.25 ? 'pos' : 'neg' });
+  }
+  document.getElementById('verticalHealth').innerHTML = items.map(it => `
+    <div class="signal">
+      <div class="signal-dot ${it.dot}"></div>
+      <div class="signal-text"><div>${it.label}</div><div style="font-size:10px;color:var(--grey-400);margin-top:1px">${it.sub}</div></div>
+      <div class="signal-value ${it.valueClass}">${it.value}</div>
+    </div>`).join('');
+}
+
+function renderObligations(m) {
+  document.getElementById('ob-praetura').textContent = fmtGBP(m.obligations.praeturaMonthly);
+  if (m.vat && m.vat.nextQuarter) {
+    const nq = m.vat.nextQuarter;
+    const d = new Date(nq.date);
+    // Payment falls the month after quarter-end (Apr7→Q1 etc.) — see qLabel() in renderVAT for the same logic.
+    const label = isNaN(d) ? 'VAT — next quarter' : `VAT Q${Math.floor(((d.getMonth()-1+12)%12)/3)+1} ${d.getFullYear()}`;
+    document.getElementById('ob-vat-label').textContent = label;
+    document.getElementById('ob-vat-date').textContent = `Due ${nq.date}`;
+    document.getElementById('ob-vat').textContent = `~${fmtGBP(nq.amount)}`;
+  }
+}
+
+// ── Revenue vs Total Costs bar chart (Overview) ──
+function renderRevBar(m) {
+  const b = m.revBar;
+  const maxV = Math.max(...[...b.revActual, ...b.revProj, ...b.costProj].filter(v => v !== null && v !== undefined));
+  const c = document.getElementById('revBarChart');
+  c.innerHTML = '';
+  b.months.forEach((mo, i) => {
+    const ra = b.revActual[i], rp = b.revProj[i], cost = b.costProj[i];
+    const raPct = ra ? ra / maxV * 100 : 0;
+    const rpPct = rp ? rp / maxV * 100 : 0;
+    const cPct = cost ? cost / maxV * 100 : 0;
+    const isActual = ra !== null && ra !== undefined;
+    const g = document.createElement('div');
+    g.className = 'bar-group';
+    g.innerHTML = `<div class="bar-wrap">
+      ${raPct ? `<div class="bar actual" style="height:${raPct}%"></div>` : ''}
+      ${rpPct ? `<div class="bar projected" style="height:${rpPct}%"></div>` : ''}
+      <div class="bar" style="height:${cPct}%;background:var(--coral);opacity:0.75"></div>
+    </div><div class="bar-label" style="${isActual ? 'color:var(--grey-600);font-weight:600' : ''}">${mo}</div>`;
+    c.appendChild(g);
+  });
+  const note = document.createElement('div');
+  note.style.cssText = 'font-size:10px;color:var(--grey-400);margin-top:8px;text-align:center';
+  note.textContent = 'Bold month labels = actuals · Crossover point where revenue bar exceeds costs bar = monthly break-even';
+  c.parentElement.appendChild(note);
+}
+
+// ── Donut chart (Revenue & Sales) ──
+function renderDonut(m) {
+  const segments = m.donut;
+  const total = segments.reduce((s, d) => s + d.value, 0);
+  document.getElementById('donutTotalLabel').textContent = `${fmtGBP(total)} total`;
+  const cx = 60, cy = 60, r = 46, ri = 30;
+  let html = '', angle = -Math.PI / 2;
+  segments.forEach(seg => {
+    const pct = total ? seg.value / total : 0;
+    const a1 = angle, a2 = angle + pct * 2 * Math.PI;
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const x2 = cx + r * Math.cos(a2), y2 = cy + r * Math.sin(a2);
+    const xi1 = cx + ri * Math.cos(a1), yi1 = cy + ri * Math.sin(a1);
+    const xi2 = cx + ri * Math.cos(a2), yi2 = cy + ri * Math.sin(a2);
+    const lg = pct > 0.5 ? 1 : 0;
+    html += `<path d="M${xi1},${yi1} L${x1},${y1} A${r},${r} 0 ${lg},1 ${x2},${y2} L${xi2},${yi2} A${ri},${ri} 0 ${lg},0 ${xi1},${yi1}" fill="${seg.color}" opacity="0.9"/>`;
+    angle = a2;
+  });
+  html += `<text x="${cx}" y="${cy-4}" text-anchor="middle" font-size="11" font-weight="700" fill="#2C2C2A" font-family="Space Grotesk">${fmtGBPk(total)}</text>`;
+  html += `<text x="${cx}" y="${cy+9}" text-anchor="middle" font-size="9" fill="#9A9A94" font-family="Space Grotesk">2026</text>`;
+  document.getElementById('donutSvg').innerHTML = html;
+
+  document.getElementById('donutLegend').innerHTML = segments.map(s => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px">
+      <span style="width:10px;height:10px;border-radius:2px;background:${s.color};flex-shrink:0;display:inline-block"></span>
+      <span style="font-size:11px;color:var(--grey-600);flex:1">${s.label}</span>
+      <span style="font-size:11px;font-weight:600;color:var(--grey-800)">${fmtGBPk(s.value)}</span>
+    </div>`).join('');
+}
+
+// ── Mini revenue trajectory (Revenue & Sales) ──
+function renderMiniTraj(m) {
+  const { years, reflect, c4c, total } = m.miniTraj;
+  const W = 380, H = 130, PL = 40, PR = 10, PT = 12, PB = 22;
+  const pw = W - PL - PR, ph = H - PT - PB;
+  const maxV = Math.max(...total);
+  const n = years.length;
+  const x = i => PL + (i / (n - 1)) * pw;
+  const y = v => PT + ph - (v / maxV) * ph;
+  let html = '';
+  const areaPath = total.map((v, i) => (i ? 'L' : 'M') + x(i) + ',' + y(v)).join(' ') + ` L${x(n-1)},${H-PB} L${x(0)},${H-PB} Z`;
+  html += `<path d="${areaPath}" fill="#11302A" opacity="0.06"/>`;
+  [[total, '#DDDDD8', 2], [reflect, '#CD8028', 2], [c4c, '#11302A', 2]].forEach(([data, color, w]) => {
+    html += `<path d="${data.map((v, i) => (i ? 'L' : 'M') + x(i) + ',' + y(v)).join(' ')}" fill="none" stroke="${color}" stroke-width="${w}"/>`;
+    data.forEach((v, i) => { html += `<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="${color}"/>`; });
+  });
+  total.forEach((v, i) => { html += `<text x="${x(i)}" y="${y(v)-7}" text-anchor="middle" font-size="9" fill="#9A9A94" font-family="Space Grotesk">${fmtGBPk(v)}</text>`; });
+  years.forEach((yr, i) => { html += `<text x="${x(i)}" y="${H-5}" text-anchor="middle" font-size="9" fill="#9A9A94" font-family="Space Grotesk">${yr}</text>`; });
+  document.getElementById('miniTrajSvg').innerHTML = html;
+}
+
+// ── Sales pipeline trackers (click a circle to set the closed count; writes back to Controls!E{row} if signed in) ──
+function renderPipelineGroup(containerId, targets) {
+  const c = document.getElementById(containerId);
+  c.innerHTML = targets.map((t, ti) => {
+    const circles = t.target > 0
+      ? Array.from({ length: t.target }, (_, i) =>
+          `<span data-ti="${ti}" data-i="${i}" style="cursor:pointer;display:inline-block;width:18px;height:18px;border-radius:50%;margin:2px;
+            background:${i < t.closed ? t.color : 'transparent'};
+            border:2px solid ${t.color};opacity:${i < t.closed ? 1 : 0.35}"></span>`
+        ).join('')
+      : `<span style="font-size:11px;color:var(--grey-400)">${t.note || '—'}</span>`;
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--grey-100)">
+      <div style="width:140px;flex-shrink:0">
+        <div style="font-size:12px;font-weight:500;color:var(--grey-800)">${t.label}</div>
+        <div style="font-size:10px;color:var(--grey-400);margin-top:1px">${t.value}</div>
+      </div>
+      <div style="flex:1;display:flex;align-items:center;gap:4px;flex-wrap:wrap">${circles}</div>
+      <div style="font-size:11px;color:var(--grey-400);white-space:nowrap;flex-shrink:0">
+        ${t.target > 0 ? `<span style="font-weight:700;color:${t.color}">${t.closed}</span> / ${t.target}` : ''}
+      </div>
+    </div>`;
+  }).join('') + `<div style="margin-top:12px;font-size:11px;color:var(--grey-400)">Click a circle to set closed count${accessToken ? ' — writes back to the sheet.' : '. Sign in (⚡ Enable Write) to save changes to the sheet.'}</div>`;
+  if (c.lastChild) c.lastChild.style.borderBottom = 'none';
+
+  c.querySelectorAll('span[data-ti]').forEach(span => {
+    span.addEventListener('click', async () => {
+      const ti = +span.dataset.ti, i = +span.dataset.i;
+      const item = targets[ti];
+      item.closed = (i < item.closed) ? i : i + 1;
+      renderPipelineGroup(containerId, targets);
+      if (accessToken) await writeCell('Controls', `E${item.ctrlRow}`, item.closed);
+    });
+  });
+}
+function renderPipeline(m) {
+  renderPipelineGroup('reflectPipeline', m.pipeline.reflect);
+  renderPipelineGroup('c4cPipeline', m.pipeline.c4c);
+}
+
+// ── Actuals vs Projection table (Revenue & Sales) ──
+function renderActualsTable(m) {
+  const a = m.actuals;
+  const monthNames = MONTH_NAMES.slice(0, a.latestIdx + 1);
+  document.getElementById('actualsMonthsLabel').textContent = `${monthNames[0]}–${monthNames[monthNames.length-1]} 2026`;
+  document.getElementById('actualsHead').innerHTML = '<th>Line Item</th>' + monthNames.map(mo => `<th>${mo}</th>`).join('') + '<th>YTD Projection</th><th>YTD Actual</th><th>Variance</th>';
+  document.getElementById('actualsBody').innerHTML = a.rows.map(r => {
+    const variance = r.ytdActual - r.ytdProj;
+    const monthCells = r.monthly.map(v => `<td>${fmtGBP(v)}</td>`).join('');
+    return `<tr class="${r.isTotal ? 'total' : ''}"><td>${r.label}</td>${monthCells}<td>${fmtGBP(r.ytdProj)}</td><td>${fmtGBP(r.ytdActual)}</td><td class="${variance >= 0 ? 'pos' : 'neg'}">${variance >= 0 ? '+' : '−'}${fmtGBP(Math.abs(variance))}</td></tr>`;
+  }).join('');
+}
+
+// ── Cash & Debt tab ──
+function renderCashDebtKPIs(m) {
+  document.getElementById('cd-cash-label').textContent = `Cash (${m.kpis.cashMonthLabel} 2026 — latest)`;
+  document.getElementById('cd-cash').textContent = m.kpis.cash !== null ? fmtGBP(m.kpis.cash) : '—';
+  document.getElementById('cd-loan-balance').textContent = fmtGBP(m.debt.closingLoanBalance[0]);
+  document.getElementById('cd-director-loan').textContent = fmtGBP(m.debt.directorLoanClosing);
+}
+
+function renderDSCR(m) {
+  const d = m.debt;
+  document.getElementById('dscrGrid').innerHTML = d.dscrYears.map((yr, i) => {
+    const v = d.dscr[i], status = d.dscrStatus[i] || (v >= 1.25 ? '✓ Strong' : v >= 1.0 ? '⚠ Tight' : '✗ Below');
+    const cls = v >= 1.25 ? 'dscr-strong' : v >= 1.0 ? 'dscr-tight' : 'dscr-below';
+    return `<div class="dscr-year"><div class="dscr-year-label">${yr}</div><div class="dscr-year-value ${cls}">${v.toFixed(2)}x</div><div class="dscr-year-status ${cls}">${status}</div></div>`;
+  }).join('');
+  const beIdx = d.dscr.findIndex(v => v >= 1.25);
+  document.getElementById('dscrInfoBox').innerHTML = `<strong>DSCR</strong> = EBITDA ÷ Annual Debt Service (Praetura + Director Loan).${beIdx >= 0 ? ` Turns positive in ${d.dscrYears[beIdx]} at ${d.dscr[beIdx].toFixed(2)}x — above the 1.25x threshold.` : ''}`;
+  document.getElementById('dscrHeadroom').innerHTML = d.headroomYears.map((yr, i) => `
+    <div style="background:var(--grey-50);border-radius:6px;padding:10px;text-align:center;border:1px solid var(--grey-100)">
+      <div style="font-size:10px;color:var(--grey-400);margin-bottom:4px;font-weight:600">${yr}</div>
+      <div style="font-size:16px;font-weight:700;color:var(--green-text)">${fmtGBP(d.headroom[i])}</div>
+    </div>`).join('');
+}
+
+function renderVAT(m) {
+  const v = m.vat;
+  // Payments fall on the 7th of the month AFTER quarter-end (Apr7→Q1, Jul7→Q2, Oct7→Q3, Jan7→Q4), so
+  // the quarter number is derived from the month *before* the payment month, not the payment month itself.
+  const qLabel = (dateStr) => { const d = new Date(dateStr); if (isNaN(d)) return dateStr; const qEndMonth = (d.getMonth() - 1 + 12) % 12; return `Q${Math.floor(qEndMonth/3)+1} liability (due ${dateStr})`; };
+  document.getElementById('vatTracker').innerHTML = `
+    <div class="vat-row"><div class="vat-row-label">VAT-able revenue (2026 actuals)</div><div class="vat-row-value">${(v.vatAblePct*100).toFixed(0)}%</div></div>
+    <div class="vat-row"><div class="vat-row-label">Effective rate on total revenue</div><div class="vat-row-value">${(v.effRate*100).toFixed(0)}%</div></div>
+    ${v.quarters.map(q => `<div class="vat-row"><div class="vat-row-label">${qLabel(q.date)}</div><div class="vat-row-value">${fmtGBP(q.amount)}</div></div>`).join('')}
+    <div style="margin-top:12px;padding:12px;background:var(--amber-soft);border-radius:6px">
+      <div style="font-size:11px;color:var(--amber-text);font-weight:600">⚠ VAT reserve rule</div>
+      <div style="font-size:11px;color:var(--amber-text);margin-top:3px">Set aside ${(v.effRate*100).toFixed(0)}% of every invoice raised. This money is not yours to spend. Review the ${(v.vatAblePct*100).toFixed(0)}% VAT-able assumption annually as international revenue grows.</div>
+    </div>`;
+}
+
+function renderDebtScheduleTable(m) {
+  const d = m.debt;
+  document.getElementById('debtScheduleHead').innerHTML = '<th>Line Item</th>' + d.yearsFull.map(y => `<th>${y}</th>`).join('');
+  const ebitdaFull = d.ebitdaFull || [];
+  const dscrFull = d.dscrFull || [];
+  document.getElementById('debtScheduleBody').innerHTML = `
+    <tr><td>Annual Debt Repayments</td>${d.repayments.map(v => `<td class="neg">${fmtParen(v)}</td>`).join('')}</tr>
+    <tr class="sub"><td>of which: Interest</td>${d.interest.map(v => `<td class="neg">${v ? fmtParen(v) : '—'}</td>`).join('')}</tr>
+    <tr class="sub"><td>of which: Principal</td>${d.principal.map(v => `<td class="neg">${fmtParen(v)}</td>`).join('')}</tr>
+    <tr><td>Closing Loan Balance</td>${d.closingLoanBalance.map(v => `<td>${fmtGBP(v)}</td>`).join('')}</tr>
+    <tr><td>EBITDA</td>${ebitdaFull.map(v => `<td class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? fmtGBP(v) : fmtParen(v)}</td>`).join('')}</tr>
+    <tr class="total"><td>DSCR</td>${dscrFull.map(v => `<td class="${v >= 1.25 ? 'pos' : 'neg'}">${v.toFixed(2)}x${v >= 1.25 ? ' ✓' : ''}</td>`).join('')}</tr>`;
+}
+
+// ── Investor View ──
+function renderInvestorCards(m) {
+  const inv = m.investor;
+  document.getElementById('inv-rev26').textContent = fmtGBP(inv.rev2026);
+  document.getElementById('inv-growth-label').textContent = `Revenue Growth ${inv.gmYear-1}→${inv.gmYear}`;
+  document.getElementById('inv-growth').textContent = `${inv.growthPct >= 0 ? '+' : ''}${inv.growthPct.toFixed(0)}%`;
+  document.getElementById('inv-growth-sub').textContent = `${fmtGBPk(inv.growthFrom)} → ${fmtGBPk(inv.growthTo)}`;
+  document.getElementById('inv-gm-label').textContent = `Gross Margin (${inv.gmYear})`;
+  document.getElementById('inv-gm').textContent = `${inv.gmPct.toFixed(1)}%`;
+  document.getElementById('inv-be-year').textContent = inv.beYear || '—';
+  document.getElementById('inv-be-sub').textContent = inv.beYear ? `First full positive year · ${fmtGBPk(inv.beValue)}` : 'Not yet reached in model';
+  document.getElementById('inv-ebitda30-label').textContent = `${m.annualPL ? m.annualPL.years[4] : 2030} EBITDA Target`;
+  document.getElementById('inv-ebitda30').textContent = fmtGBP(inv.ebitda2030);
+  document.getElementById('inv-ebitda30-sub').textContent = `${inv.ebitdaMargin2030.toFixed(0)}% EBITDA margin`;
+}
+
+function renderTrajSvg(m) {
+  const revenues = m.annualPL.totalRevenue, ebitdas = m.annualPL.ebitda, years = m.annualPL.years;
+  const W = 500, H = 180, PL = 60, PR = 20, PT = 20, PB = 30;
+  const pw = W - PL - PR, ph = H - PT - PB;
+  const all = [...revenues, ...ebitdas];
+  const maxV = Math.max(...all), minV = Math.min(...all), rng = maxV - minV || 1;
+  const n = years.length;
+  const x = i => PL + (i / (n - 1)) * pw;
+  const y = v => PT + ph - ((v - minV) / rng) * ph;
+  let html = '';
+  const yz = y(0);
+  html += `<line x1="${PL}" y1="${yz}" x2="${W-PR}" y2="${yz}" stroke="#DDDDD8" stroke-width="1" stroke-dasharray="4,3"/>`;
+  html += `<path d="${revenues.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ')}" fill="none" stroke="#CD8028" stroke-width="2.5"/>`;
+  revenues.forEach((v, i) => { html += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#CD8028"/>`; });
+  html += `<path d="${ebitdas.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ')}" fill="none" stroke="#11302A" stroke-width="2" stroke-dasharray="6,3"/>`;
+  ebitdas.forEach((v, i) => { html += `<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="#11302A"/>`; });
+  years.forEach((yr, i) => { html += `<text x="${x(i)}" y="${H-6}" text-anchor="middle" font-size="10" fill="#9A9A94" font-family="Space Grotesk">${yr}</text>`; });
+  revenues.forEach((v, i) => { html += `<text x="${x(i)}" y="${y(v)-8}" text-anchor="middle" font-size="9" fill="#CD8028" font-family="Space Grotesk" font-weight="600">${fmtGBPk(v)}</text>`; });
+  [minV, 0, maxV].forEach(v => {
+    const yp = y(v);
+    if (yp >= PT && yp <= H - PB) html += `<text x="${PL-4}" y="${yp+4}" text-anchor="end" font-size="9" fill="#9A9A94" font-family="Space Grotesk">${Math.abs(v) < 1000 ? '£'+Math.round(v) : fmtGBPk(v)}</text>`;
+  });
+  document.getElementById('trajSvg').innerHTML = html;
+}
+
+function renderMarginSvg(m) {
+  const years = m.annualPL.years, grossMargins = m.annualPL.grossMarginPct, ebitdaMargins = m.annualPL.ebitdaMarginPct;
+  const W = 380, H = 160, PL = 38, PR = 12, PT = 16, PB = 24;
+  const pw = W - PL - PR, ph = H - PT - PB;
+  const minV = -25, maxV = 100, rng = maxV - minV;
+  const n = years.length;
+  const x = i => PL + (i / (n - 1)) * pw;
+  const y = v => PT + ph - ((v - minV) / rng) * ph;
+  let html = '';
+  [-20, 0, 25, 50, 75, 100].forEach(v => {
+    if (v < minV || v > maxV) return;
+    const yp = y(v);
+    html += `<line x1="${PL}" y1="${yp}" x2="${W-PR}" y2="${yp}" stroke="${v===0?'#AAAAAA':'#EFEFEB'}" stroke-width="${v===0?1.5:1}" ${v===0?'stroke-dasharray="4,3"':''}/>`;
+    html += `<text x="${PL-4}" y="${yp+4}" text-anchor="end" font-size="9" fill="#9A9A94" font-family="Space Grotesk">${v}%</text>`;
+  });
+  const gmArea = grossMargins.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ') + ` L${x(n-1)},${y(0)} L${x(0)},${y(0)} Z`;
+  html += `<path d="${gmArea}" fill="#CD8028" opacity="0.06"/>`;
+  html += `<path d="${grossMargins.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ')}" fill="none" stroke="#CD8028" stroke-width="2.5"/>`;
+  grossMargins.forEach((v, i) => {
+    html += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#CD8028"/>`;
+    html += `<text x="${x(i)}" y="${y(v)-8}" text-anchor="middle" font-size="9" fill="#CD8028" font-weight="600" font-family="Space Grotesk">${v.toFixed(1)}%</text>`;
+  });
+  html += `<path d="${ebitdaMargins.map((v,i)=>(i?'L':'M')+x(i)+','+y(v)).join(' ')}" fill="none" stroke="#11302A" stroke-width="2.5"/>`;
+  ebitdaMargins.forEach((v, i) => {
+    const isPos = v >= 0;
+    html += `<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="${isPos?'#11302A':'#EE5C5F'}"/>`;
+    html += `<text x="${x(i)}" y="${y(v)+(v<0?16:-8)}" text-anchor="middle" font-size="9" fill="${isPos?'#11302A':'#EE5C5F'}" font-weight="600" font-family="Space Grotesk">${v>0?'+':''}${v.toFixed(1)}%</text>`;
+  });
+  years.forEach((yr, i) => { html += `<text x="${x(i)}" y="${H-5}" text-anchor="middle" font-size="9" fill="#9A9A94" font-family="Space Grotesk">${yr}</text>`; });
+  const beIdx = ebitdaMargins.findIndex(v => v >= 0);
+  document.getElementById('marginYearGrid').innerHTML = years.map((yr, i) => `
+    <div style="text-align:center"><div style="font-size:10px;color:var(--grey-400);margin-bottom:3px">${yr}</div><div style="font-size:13px;font-weight:700;color:${ebitdaMargins[i]>=0?'var(--green-text)':'var(--coral)'}">${ebitdaMargins[i]>0?'+':''}${ebitdaMargins[i].toFixed(1)}%</div><div style="font-size:10px;color:var(--grey-400)">EBITDA</div></div>`).join('');
+  if (beIdx > 0) {
+    const beX = x(beIdx-1) + (x(beIdx)-x(beIdx-1)) * (Math.abs(ebitdaMargins[beIdx-1])/(Math.abs(ebitdaMargins[beIdx-1])+Math.abs(ebitdaMargins[beIdx])));
+    html += `<line x1="${beX}" y1="${PT}" x2="${beX}" y2="${H-PB}" stroke="#4CAF50" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>`;
+    html += `<text x="${beX+3}" y="${PT+10}" font-size="9" fill="#2E7D32" font-family="Space Grotesk" font-weight="600">Break-even</text>`;
+  }
+  document.getElementById('marginSvg').innerHTML = html;
+}
+
+// ── P&L Detail table ──
+function renderPL(m) {
+  const a = m.annualPL;
+  document.getElementById('plHead').innerHTML = '<th>Line Item</th>' + a.years.map(y => `<th>${y}</th>`).join('');
+  const rows = [
+    { label: 'Total Revenue', vals: a.totalRevenue, total: true },
+    { label: 'Total COGS', vals: a.cogs.map(v => -v) },
+    { label: 'Gross Profit', vals: a.grossProfit, total: true },
+    { label: 'Gross Margin %', vals: a.grossMarginPct, isPct: true, sub: true },
+    { label: 'Total OpEx', vals: a.opex.map(v => -v) },
+    { label: 'of which: Payroll', vals: a.payroll.map(v => -v), sub: true },
+    { label: 'EBITDA', vals: a.ebitda, total: true },
+    { label: 'EBITDA Margin %', vals: a.ebitdaMarginPct, isPct: true, sub: true },
+    { label: 'Debt Repayments', vals: a.debtRepay.map(v => -v) },
+    { label: 'EBT', vals: a.ebt, total: true },
+    { label: 'Corporation Tax', vals: a.tax.map(v => -v) },
+    { label: 'PAT', vals: a.pat, total: true },
+  ];
+  document.getElementById('plBody').innerHTML = rows.map(r => {
+    const cls = r.sub ? 'sub' : r.total ? 'total' : '';
+    const cells = r.vals.map(v => {
+      if (r.isPct) return `<td class="${v >= 0 ? 'pos' : 'neg'}">${v >= 0 ? '' : ''}${v.toFixed(1)}%</td>`;
+      if (v === 0) return `<td>—</td>`;
+      return `<td class="${v < 0 ? 'neg' : v > 0 && (r.label === 'EBITDA' || r.label === 'EBT' || r.label === 'PAT') ? 'pos' : ''}">${fmtParen(v)}</td>`;
+    }).join('');
+    return `<tr class="${cls}"><td>${r.label}</td>${cells}</tr>`;
+  }).join('');
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  const m = MODEL;
+  calculateRunway(m.runway);
+  renderKPIs(m);
+  renderVerticalHealth(m);
+  renderObligations(m);
+  renderRevBar(m);
+  renderDonut(m);
+  renderMiniTraj(m);
+  renderPipeline(m);
+  renderActualsTable(m);
+  renderCashDebtKPIs(m);
+  renderDSCR(m);
+  renderVAT(m);
+  renderDebtScheduleTable(m);
+  renderInvestorCards(m);
+  renderTrajSvg(m);
+  renderMarginSvg(m);
+  renderPL(m);
 }
 
 // ── INIT ──
-window.addEventListener('load', () => {
-  buildChartsForTab('overview');
-  runScenario();
-  if (CFG.apiKey) syncData();
-});
-
-// GIS loads async — initialise token client once it's ready
-window.addEventListener('load', () => {
-  const poll = setInterval(() => {
-    if (typeof google !== 'undefined' && google.accounts) {
-      initOAuth();
-      clearInterval(poll);
-    }
-  }, 200);
-});
+renderAll(); // paint demo data immediately, no flash of empty state
+if (apiKey) {
+  document.getElementById('syncText').textContent = 'Demo data · connecting…';
+  syncData();
+} else {
+  document.getElementById('syncText').textContent = 'Demo data — configure to connect Google Sheets';
+  document.getElementById('syncDot').className = 'sync-dot';
+}
 </script>
+<!-- FOOTER -->
+<div style="background:var(--forest);padding:14px 32px;margin-top:32px;text-align:center">
+  <div style="font-size:10px;color:rgba(255,255,255,0.35);line-height:1.6">
+    ConnectGo Ltd, a duly registered Company under the terms and conditions of the UK Companies Act 2006 with registration number 11200005, with registered address at 8B Neville Terrace, Tunbridge Wells, Kent, TN2 5QY, UK.
+  </div>
+</div>
+
 </body>
 </html>
